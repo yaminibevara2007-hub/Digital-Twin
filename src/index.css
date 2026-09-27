@@ -1,0 +1,71 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --bg-primary: #0b1320;
+    --bg-panel: #111c2e;
+    --border-color: #1c2c47;
+  }
+
+  body {
+    background-color: #0b1320;
+    color: #e2e8f0;
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    margin: 0;
+    padding: 0;
+    overflow-x: hidden;
+  }
+
+  #root {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+  }
+
+  /* Industrial subtle scrollbar */
+  ::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+  ::-webkit-scrollbar-track {
+    background: #0b1320;
+  }
+  ::-webkit-scrollbar-thumb {
+    background: #1c2c47;
+    border-radius: 2px;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: #2b3f63;
+  }
+}
+
+/* Engineering SCADA table & meter utilities */
+.scada-panel {
+  background-color: #111c2e;
+  border: 1px solid #1c2c47;
+  border-radius: 4px;
+}
+
+.scada-panel-active {
+  background-color: #16233b;
+  border: 1px solid #2b3f63;
+}
+
+.scada-data-cell {
+  font-family: 'IBM Plex Mono', 'Roboto Mono', monospace;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Subtle pulse for active telemetry only */
+@keyframes telemetry-ping {
+  0% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.4; transform: scale(1.1); }
+  100% { opacity: 1; transform: scale(1); }
+}
+
+.telemetry-live {
+  animation: telemetry-ping 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
