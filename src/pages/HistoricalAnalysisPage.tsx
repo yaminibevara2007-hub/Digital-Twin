@@ -2,14 +2,7 @@ import React, { useState } from 'react';
 import { CSSCycleData, WellInfo } from '../types';
 import { getWellCSSCycles } from '../services/mockDataService';
 import { StatusBadge } from '../components/StatusBadge';
-import { 
-  History, 
-  Flame, 
-  Droplet, 
-  BarChart2, 
-  TrendingUp,
-  FileSpreadsheet
-} from 'lucide-react';
+import { History } from 'lucide-react';
 import {
   ResponsiveContainer,
   BarChart,
@@ -40,65 +33,65 @@ export const HistoricalAnalysisPage: React.FC<HistoricalAnalysisPageProps> = ({ 
   }));
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-6">
       {/* Header Notice */}
-      <div className="scada-panel p-4 flex flex-col md:flex-row items-start md:items-center justify-between gap-3">
+      <div className="bg-white border border-app-border rounded-lg p-6 flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
         <div>
-          <span className="text-xs font-mono font-bold text-sky-400 uppercase tracking-wider flex items-center gap-1.5">
-            <History className="w-4 h-4 text-sky-400" />
-            Historical Cyclic Steam Stimulation (CSS) Multi-Cycle Analysis
+          <span className="text-sm font-semibold text-app-text tracking-tight flex items-center gap-2">
+            <History className="w-4 h-4 text-app-blue" />
+            Historical Cyclic Steam Stimulation (CSS) Cycle Analysis
           </span>
-          <div className="text-[11px] font-mono text-industrial-400">
-            Cross-Cycle Thermodynamic Conformance & Net Oil Recovery Performance
+          <div className="text-xs text-app-muted">
+            Cross-cycle thermodynamic conformance & net oil recovery comparison
           </div>
         </div>
 
-        <div className="text-xs font-mono text-industrial-400">
+        <div className="text-xs text-app-muted">
           Well {well.id} | Formation: Jodhpur Sandstone
         </div>
       </div>
 
-      {/* Cycle Multi-Bar Comparison Chart */}
-      <div className="scada-panel p-4 flex flex-col gap-3">
-        <div className="flex items-center justify-between border-b border-industrial-800 pb-2">
+      {/* Cycle Comparison Bar Chart */}
+      <div className="bg-white border border-app-border rounded-lg p-6 flex flex-col gap-4">
+        <div className="flex items-center justify-between border-b border-app-border pb-3">
           <div>
-            <span className="text-xs font-mono font-bold text-industrial-200 uppercase tracking-wider">
+            <span className="text-sm font-semibold text-app-text tracking-tight">
               Steam Volume Injected vs Cumulative Oil Recovery by Cycle
             </span>
-            <div className="text-[11px] font-mono text-industrial-400">
+            <div className="text-xs text-app-muted">
               Evaluates thermal stimulation efficiency trends across successive cycles
             </div>
           </div>
 
-          <div className="text-xs font-mono text-industrial-400">
+          <div className="text-xs text-app-muted">
             Cycles 1 to 5
           </div>
         </div>
 
-        <div className="w-full h-72 bg-industrial-950 rounded p-2 border border-industrial-850">
+        <div className="w-full h-72 bg-white rounded p-1 border border-app-border">
           <ResponsiveContainer width="100%" height="100%">
-            <BarChart data={chartData} margin={{ top: 10, right: 25, left: 10, bottom: 20 }}>
-              <CartesianGrid stroke="#1c2c47" strokeDasharray="3 3" />
+            <BarChart data={chartData} margin={{ top: 15, right: 25, left: 10, bottom: 20 }}>
+              <CartesianGrid stroke="#F1F5F9" strokeDasharray="3 3" />
               <XAxis
                 dataKey="cycle"
-                stroke="#5c75a3"
-                tick={{ fontSize: 10, fill: '#8ba2c7', fontFamily: 'monospace' }}
+                stroke="#94A3B8"
+                tick={{ fontSize: 11, fill: '#64748B', fontFamily: 'sans-serif' }}
               />
               <YAxis
-                stroke="#5c75a3"
-                tick={{ fontSize: 10, fill: '#8ba2c7', fontFamily: 'monospace' }}
+                stroke="#94A3B8"
+                tick={{ fontSize: 11, fill: '#64748B', fontFamily: 'sans-serif' }}
               />
               <Tooltip
                 content={({ active, payload }) => {
                   if (active && payload && payload.length) {
                     const p = payload[0].payload;
                     return (
-                      <div className="bg-industrial-900 border border-industrial-700 p-2 text-xs font-mono rounded shadow-lg text-industrial-200">
-                        <div className="text-industrial-400 font-bold">{p.cycle}</div>
-                        <div className="text-petro-orange">Steam: {p.steamVolume} tonnes</div>
-                        <div className="text-sky-400">Cumulative Oil: {p.cumulativeOil} bbl</div>
-                        <div className="text-emerald-400">Peak Rate: {p.peakRate} bbl/day</div>
-                        <div className="text-industrial-300">SOR: {p.sor} bbl/tonne</div>
+                      <div className="bg-white border border-app-border p-2.5 text-xs rounded-lg shadow-xs text-app-text">
+                        <div className="text-app-text font-bold mb-1">{p.cycle}</div>
+                        <div className="text-app-steam font-medium">Steam: {p.steamVolume} tonnes</div>
+                        <div className="text-app-blue font-medium">Cumulative Oil: {p.cumulativeOil} bbl</div>
+                        <div className="text-app-green font-medium">Peak Rate: {p.peakRate} bbl/day</div>
+                        <div className="text-app-muted">SOR: {p.sor} bbl/tonne</div>
                       </div>
                     );
                   }
@@ -107,41 +100,41 @@ export const HistoricalAnalysisPage: React.FC<HistoricalAnalysisPageProps> = ({ 
               />
               <Legend
                 verticalAlign="top"
-                wrapperStyle={{ fontSize: '11px', fontFamily: 'monospace', paddingBottom: '6px' }}
+                wrapperStyle={{ fontSize: '11px', fontFamily: 'sans-serif', paddingBottom: '8px' }}
               />
-              <Bar dataKey="steamVolume" name="Steam Injected (tonnes)" fill="#d97736" radius={[2, 2, 0, 0]} />
-              <Bar dataKey="cumulativeOil" name="Cumulative Oil (bbl)" fill="#0284c7" radius={[2, 2, 0, 0]} />
+              <Bar dataKey="steamVolume" name="Steam Injected (tonnes)" fill="#D9824B" radius={[4, 4, 0, 0]} />
+              <Bar dataKey="cumulativeOil" name="Cumulative Oil (bbl)" fill="#3B82A0" radius={[4, 4, 0, 0]} />
             </BarChart>
           </ResponsiveContainer>
         </div>
       </div>
 
       {/* Cycle Comparison Master Table */}
-      <div className="scada-panel p-4">
-        <div className="flex items-center justify-between border-b border-industrial-800 pb-2 mb-3">
-          <span className="text-xs font-mono font-bold text-industrial-200 uppercase tracking-wider">
+      <div className="bg-white border border-app-border rounded-lg p-6">
+        <div className="flex items-center justify-between border-b border-app-border pb-3 mb-4">
+          <span className="text-sm font-semibold text-app-text tracking-tight">
             Cycle-to-Cycle Parameters & Performance Metrics
           </span>
-          <span className="text-[11px] font-mono text-industrial-400">Click any row to inspect cycle log</span>
+          <span className="text-xs text-app-muted">Click row to inspect operational log</span>
         </div>
 
         <div className="overflow-x-auto">
-          <table className="w-full text-xs font-mono border-collapse">
+          <table className="w-full text-xs border-collapse">
             <thead>
-              <tr className="bg-industrial-950 border-b border-industrial-800 text-industrial-400 text-left">
-                <th className="py-2.5 px-3">Cycle #</th>
-                <th className="py-2.5 px-3">Status</th>
-                <th className="py-2.5 px-3">Steam (t)</th>
-                <th className="py-2.5 px-3">Inj. Days</th>
-                <th className="py-2.5 px-3">Soak Days</th>
-                <th className="py-2.5 px-3">Prod. Days</th>
-                <th className="py-2.5 px-3">Peak BOPD</th>
-                <th className="py-2.5 px-3">Cum. Oil (bbl)</th>
-                <th className="py-2.5 px-3">SOR</th>
-                <th className="py-2.5 px-3">Peak Temp (°C)</th>
+              <tr className="bg-app-bg border-b border-app-border text-app-text text-left">
+                <th className="py-2.5 px-3 font-semibold">Cycle #</th>
+                <th className="py-2.5 px-3 font-semibold">Status</th>
+                <th className="py-2.5 px-3 font-semibold">Steam (t)</th>
+                <th className="py-2.5 px-3 font-semibold">Inj. Days</th>
+                <th className="py-2.5 px-3 font-semibold">Soak Days</th>
+                <th className="py-2.5 px-3 font-semibold">Prod. Days</th>
+                <th className="py-2.5 px-3 font-semibold">Peak BOPD</th>
+                <th className="py-2.5 px-3 font-semibold">Cum. Oil (bbl)</th>
+                <th className="py-2.5 px-3 font-semibold">SOR</th>
+                <th className="py-2.5 px-3 font-semibold">Peak Temp (°C)</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-industrial-850">
+            <tbody className="divide-y divide-app-border">
               {cycles.map((c) => {
                 const isSelected = selectedCycleNum === c.cycleNumber;
                 return (
@@ -149,19 +142,19 @@ export const HistoricalAnalysisPage: React.FC<HistoricalAnalysisPageProps> = ({ 
                     key={c.cycleNumber}
                     onClick={() => setSelectedCycleNum(c.cycleNumber)}
                     className={`cursor-pointer transition-colors ${
-                      isSelected ? 'bg-industrial-850 font-semibold text-white' : 'hover:bg-industrial-900/60'
+                      isSelected ? 'bg-app-softBlue font-semibold text-app-navy' : 'hover:bg-[#F8FAFC]'
                     }`}
                   >
-                    <td className="py-2 px-3 text-sky-400 font-bold">Cycle {c.cycleNumber}</td>
-                    <td className="py-2 px-3"><StatusBadge status={c.status} size="sm" /></td>
-                    <td className="py-2 px-3 text-petro-orange">{c.steamVolumeTonnes}</td>
-                    <td className="py-2 px-3">{c.injectionDurationDays}</td>
-                    <td className="py-2 px-3">{c.soakDurationDays}</td>
-                    <td className="py-2 px-3">{c.productionDurationDays}</td>
-                    <td className="py-2 px-3 text-industrial-100">{c.peakOilRateBOPD}</td>
-                    <td className="py-2 px-3 text-sky-400 font-bold">{c.cumulativeOilBbl.toLocaleString()}</td>
-                    <td className="py-2 px-3">{c.sorBblTon}</td>
-                    <td className="py-2 px-3 text-petro-orange">{c.peakReservoirTempC} °C</td>
+                    <td className="py-2.5 px-3 font-medium text-app-navy">Cycle {c.cycleNumber}</td>
+                    <td className="py-2.5 px-3"><StatusBadge status={c.status} size="sm" /></td>
+                    <td className="py-2.5 px-3 text-app-steam">{c.steamVolumeTonnes}</td>
+                    <td className="py-2.5 px-3 text-app-muted">{c.injectionDurationDays}</td>
+                    <td className="py-2.5 px-3 text-app-muted">{c.soakDurationDays}</td>
+                    <td className="py-2.5 px-3 text-app-muted">{c.productionDurationDays}</td>
+                    <td className="py-2.5 px-3 text-app-text">{c.peakOilRateBOPD}</td>
+                    <td className="py-2.5 px-3 text-app-blue font-semibold">{c.cumulativeOilBbl.toLocaleString()}</td>
+                    <td className="py-2.5 px-3 text-app-muted">{c.sorBblTon}</td>
+                    <td className="py-2.5 px-3 text-app-steam">{c.peakReservoirTempC} °C</td>
                   </tr>
                 );
               })}
@@ -170,15 +163,15 @@ export const HistoricalAnalysisPage: React.FC<HistoricalAnalysisPageProps> = ({ 
         </div>
       </div>
 
-      {/* Selected Cycle Engineering Post-Mortem & Operational Log */}
-      <div className="scada-panel p-4 bg-industrial-900/80">
-        <div className="flex items-center justify-between border-b border-industrial-800 pb-2 mb-2">
-          <span className="text-xs font-mono font-bold text-sky-400 uppercase tracking-wider">
-            Operational Log & Engineering Observations: Cycle {selectedCycle.cycleNumber}
+      {/* Selected Cycle Engineering Log */}
+      <div className="bg-app-bg border border-app-border rounded-lg p-5">
+        <div className="flex items-center justify-between border-b border-app-border pb-2.5 mb-2">
+          <span className="text-xs font-semibold text-app-text uppercase tracking-wider">
+            Operational Log & Field Observations: Cycle {selectedCycle.cycleNumber}
           </span>
           <StatusBadge status={selectedCycle.status} size="sm" />
         </div>
-        <p className="text-xs text-industrial-300 leading-relaxed font-mono">
+        <p className="text-xs text-app-muted leading-relaxed">
           {selectedCycle.notes}
         </p>
       </div>

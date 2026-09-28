@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { TelemetryData, WellInfo } from '../types';
-import { FileText, Printer, Download, CheckCircle, Clock, ShieldCheck } from 'lucide-react';
+import { FileText, Printer, Download } from 'lucide-react';
 
 interface ReportsPageProps {
   well: WellInfo;
@@ -71,7 +71,6 @@ REPORT PREPARED BY: P. Sharma (Senior Production Engineer)
 ================================================================================
 AUTHORIZED SIGN-OFF:
 Senior Production Engineer, Baghewala Asset Operations
-Oil & Natural Gas Corporation Ltd. / Cairn India Jodhpur Operations
 ================================================================================
     `;
 
@@ -87,112 +86,112 @@ Oil & Natural Gas Corporation Ltd. / Cairn India Jodhpur Operations
   };
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-6">
       {/* Action Bar */}
-      <div className="scada-panel p-4 flex flex-col md:flex-row items-start md:items-center justify-between gap-3">
+      <div className="bg-white border border-app-border rounded-lg p-6 flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
         <div>
-          <span className="text-xs font-mono font-bold text-sky-400 uppercase tracking-wider flex items-center gap-1.5">
-            <FileText className="w-4 h-4 text-sky-400" />
-            Official Petroleum Engineering Operations Summary Report
+          <span className="text-sm font-semibold text-app-text tracking-tight flex items-center gap-2">
+            <FileText className="w-4 h-4 text-app-blue" />
+            Petroleum Engineering Field Summary Report
           </span>
-          <div className="text-[11px] font-mono text-industrial-400">
-            Complies with Baghewala Asset EOR Technical Standards | Rigless Operations
+          <div className="text-xs text-app-muted">
+            Formal asset summary conforming to heavy-oil EOR technical reporting standards
           </div>
         </div>
 
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2.5">
           <button
             onClick={handleDownloadText}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded bg-industrial-800 border border-industrial-700 text-industrial-200 text-xs font-mono hover:bg-industrial-750 transition-colors"
+            className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-md bg-white border border-app-border text-app-text text-xs font-medium hover:bg-app-bg transition-colors"
           >
-            <Download className="w-3.5 h-3.5" />
+            <Download className="w-3.5 h-3.5 text-app-muted" />
             {downloaded ? 'Downloaded TXT' : 'Export Data File'}
           </button>
           <button
             onClick={handlePrint}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded bg-sky-950 border border-sky-600 text-sky-200 text-xs font-mono font-semibold hover:bg-sky-900 transition-colors"
+            className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-md bg-app-navy text-white text-xs font-medium hover:bg-app-navyDark transition-colors"
           >
             <Printer className="w-3.5 h-3.5" />
-            Print Technical Report
+            Print Report
           </button>
         </div>
       </div>
 
-      {/* Printable Engineering Formal Sheet */}
-      <div className="bg-industrial-900 border border-industrial-800 p-6 rounded shadow-xl text-industrial-100 font-mono text-xs space-y-6">
-        {/* Header Block */}
-        <div className="border-b-2 border-industrial-700 pb-4 flex flex-col md:flex-row justify-between items-start md:items-center gap-2">
+      {/* Formal Technical Document Sheet */}
+      <div className="bg-white border border-app-border p-8 rounded-lg shadow-sm text-app-text font-sans text-xs space-y-6">
+        {/* Document Header */}
+        <div className="border-b border-app-border pb-4 flex flex-col md:flex-row justify-between items-start md:items-center gap-2">
           <div>
-            <div className="text-sm font-bold tracking-wider uppercase text-white">
-              BAGHEWALA ASSET OPERATIONS — PETROLEUM ENGINEERING DIVISION
+            <div className="text-sm font-bold text-app-text tracking-tight uppercase">
+              Baghewala Asset Operations — Petroleum Engineering Division
             </div>
-            <div className="text-industrial-400 text-[11px]">
-              CYCLIC STEAM STIMULATION (CSS) & SUCKER ROD PUMP (SRP) INTEGRATED REPORT
+            <div className="text-app-muted text-xs">
+              Cyclic Steam Stimulation (CSS) & Sucker Rod Pump (SRP) Technical Summary
             </div>
           </div>
-          <div className="text-right text-[11px] text-industrial-400">
+          <div className="text-right text-xs text-app-muted">
             <div>Ref: BAG-EOR-RPT-2026-09</div>
-            <div>Date: 2026-09-27 20:49 IST</div>
+            <div>Date: 2026-09-27 | 10:32 AM</div>
           </div>
         </div>
 
-        {/* Section 1: Asset Information */}
+        {/* Section 1 */}
         <div>
-          <div className="bg-industrial-950 p-2 font-bold text-sky-400 uppercase text-[11px] border border-industrial-800 mb-2">
-            1. Well Identification & Reservoir Characteristics
+          <div className="bg-app-bg p-2.5 font-semibold text-app-text uppercase text-xs border border-app-border rounded-t mb-3">
+            1. Well Identification & Formation Characteristics
           </div>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-3 text-[11px]">
-            <div>Well Name: <strong className="text-white">{well.name}</strong></div>
-            <div>Formation: <strong className="text-white">{well.formation}</strong></div>
-            <div>Perforated Depth: <strong className="text-white">{well.depthMeters} m TVD</strong></div>
-            <div>Crude Gravity: <strong className="text-white">{well.apiGravity}° API</strong></div>
-            <div>CSS Stage: <strong className="text-petro-orange">{well.currentStage} (Day {well.stageDay})</strong></div>
-            <div>Active Cycle: <strong className="text-white">Cycle {well.currentCycle}</strong></div>
-            <div>Initial Dead Viscosity: <strong className="text-white">22,000 cP @ 40°C</strong></div>
-            <div>Pump Specification: <strong className="text-white">{well.pumpType}</strong></div>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-xs">
+            <div>Well Name: <strong className="text-app-text">{well.name}</strong></div>
+            <div>Formation: <strong className="text-app-text">{well.formation}</strong></div>
+            <div>Perforated Depth: <strong className="text-app-text">{well.depthMeters} m TVD</strong></div>
+            <div>Crude Gravity: <strong className="text-app-text">{well.apiGravity}° API</strong></div>
+            <div>CSS Stage: <strong className="text-app-steam">{well.currentStage} (Day {well.stageDay})</strong></div>
+            <div>Active Cycle: <strong className="text-app-text">Cycle {well.currentCycle}</strong></div>
+            <div>Initial Dead Viscosity: <strong className="text-app-text">22,000 cP @ 40°C</strong></div>
+            <div>Pump Specification: <strong className="text-app-text">{well.pumpType}</strong></div>
           </div>
         </div>
 
-        {/* Section 2: Current Thermal & Viscosity State */}
+        {/* Section 2 */}
         <div>
-          <div className="bg-industrial-950 p-2 font-bold text-petro-orange uppercase text-[11px] border border-industrial-800 mb-2">
+          <div className="bg-app-bg p-2.5 font-semibold text-app-text uppercase text-xs border border-app-border rounded-t mb-3">
             2. Near-Wellbore Thermal Conformance & Hydro-Dynamics
           </div>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-3 text-[11px]">
-            <div>Near-Wellbore Temp: <strong className="text-petro-orange">{telemetry.reservoirTempC} °C</strong></div>
-            <div>In-Situ Viscosity: <strong className="text-white">{telemetry.estimatedViscosityCP} cP</strong></div>
-            <div>Effective Heated Radius: <strong className="text-white">{telemetry.thermalZoneRadiusMeters} meters</strong></div>
-            <div>Specific SOR: <strong className="text-white">{telemetry.steamOilRatioSOR} bbl CWE/bbl</strong></div>
-            <div>Metered Oil Rate: <strong className="text-emerald-400 font-bold">{telemetry.oilRateBOPD} bbl/day</strong></div>
-            <div>Produced Water Cut: <strong className="text-white">{telemetry.waterCutPct}%</strong></div>
-            <div>Darcy Fluid Mobility: <strong className="text-white">{telemetry.fluidMobilityMD_CP} mD/cP</strong></div>
-            <div>Channeling Indicator: <strong className="text-white">{telemetry.channelingRiskIndex}/100 (Normal)</strong></div>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-xs">
+            <div>Near-Wellbore Temp: <strong className="text-app-steam">{telemetry.reservoirTempC} °C</strong></div>
+            <div>In-Situ Viscosity: <strong className="text-app-text">{telemetry.estimatedViscosityCP} cP</strong></div>
+            <div>Effective Heated Radius: <strong className="text-app-text">{telemetry.thermalZoneRadiusMeters} meters</strong></div>
+            <div>Specific SOR: <strong className="text-app-text">{telemetry.steamOilRatioSOR} bbl CWE/bbl</strong></div>
+            <div>Metered Oil Rate: <strong className="text-app-green font-bold">{telemetry.oilRateBOPD} bbl/day</strong></div>
+            <div>Produced Water Cut: <strong className="text-app-text">{telemetry.waterCutPct}%</strong></div>
+            <div>Darcy Fluid Mobility: <strong className="text-app-text">{telemetry.fluidMobilityMD_CP} mD/cP</strong></div>
+            <div>Channeling Indicator: <strong className="text-app-text">{telemetry.channelingRiskIndex}/100 (Normal)</strong></div>
           </div>
         </div>
 
-        {/* Section 3: Sucker Rod Pump Mechanical Health */}
+        {/* Section 3 */}
         <div>
-          <div className="bg-industrial-950 p-2 font-bold text-emerald-400 uppercase text-[11px] border border-industrial-800 mb-2">
+          <div className="bg-app-bg p-2.5 font-semibold text-app-text uppercase text-xs border border-app-border rounded-t mb-3">
             3. Mechanical SRP Pumping Performance & Load Envelopes
           </div>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-3 text-[11px]">
-            <div>Pumping Speed: <strong className="text-white">{telemetry.srpSPM} SPM</strong></div>
-            <div>Surface Stroke Length: <strong className="text-white">{telemetry.srpStrokeLengthInches}"</strong></div>
-            <div>VFD Drive Frequency: <strong className="text-white">{telemetry.vfdFrequencyHz} Hz</strong></div>
-            <div>Pump Fillage: <strong className="text-emerald-400 font-bold">{telemetry.pumpFillagePct}%</strong></div>
-            <div>Peak Polished Rod Load: <strong className="text-white">{telemetry.peakPolishedRodLoadLbs} lbs</strong></div>
-            <div>Downstroke Rod Drag: <strong className="text-amber-400">{3340 - telemetry.rodFloatMarginLbs} lbs</strong></div>
-            <div>Buoyant Fall Margin: <strong className={telemetry.rodFloatMarginLbs < 600 ? 'text-amber-400 font-bold' : 'text-white'}>{telemetry.rodFloatMarginLbs} lbs</strong></div>
-            <div>Specific Lifting Energy: <strong className="text-white">{telemetry.energyConsumptionKWhBbl} kWh/bbl</strong></div>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-xs">
+            <div>Pumping Speed: <strong className="text-app-navy">{telemetry.srpSPM} SPM</strong></div>
+            <div>Surface Stroke Length: <strong className="text-app-text">{telemetry.srpStrokeLengthInches}"</strong></div>
+            <div>VFD Drive Frequency: <strong className="text-app-text">{telemetry.vfdFrequencyHz} Hz</strong></div>
+            <div>Pump Fillage: <strong className="text-app-green font-bold">{telemetry.pumpFillagePct}%</strong></div>
+            <div>Peak Polished Rod Load: <strong className="text-app-text">{telemetry.peakPolishedRodLoadLbs} lbs</strong></div>
+            <div>Downstroke Rod Drag: <strong className="text-app-amber">{3340 - telemetry.rodFloatMarginLbs} lbs</strong></div>
+            <div>Buoyant Fall Margin: <strong className={telemetry.rodFloatMarginLbs < 600 ? 'text-app-amber font-semibold' : 'text-app-text'}>{telemetry.rodFloatMarginLbs} lbs</strong></div>
+            <div>Specific Lifting Energy: <strong className="text-app-text">{telemetry.energyConsumptionKWhBbl} kWh/bbl</strong></div>
           </div>
         </div>
 
-        {/* Section 4: Engineering Actions & Dispatch */}
+        {/* Section 4 */}
         <div>
-          <div className="bg-industrial-950 p-2 font-bold text-sky-400 uppercase text-[11px] border border-industrial-800 mb-2">
+          <div className="bg-app-bg p-2.5 font-semibold text-app-text uppercase text-xs border border-app-border rounded-t mb-3">
             4. Verified Engineering Operational Dispatch & Decision
           </div>
-          <div className="p-3 bg-industrial-950 border border-industrial-850 rounded space-y-2 text-[11px] text-industrial-200 leading-relaxed">
+          <div className="p-4 bg-app-bg border border-app-border rounded-b space-y-2 text-xs text-app-muted leading-relaxed">
             <p>
               1. <strong>SRP Velocity Regulation:</strong> Pumping speed of {telemetry.srpSPM} SPM is well-matched to current in-situ viscosity of {telemetry.estimatedViscosityCP} cP. Do not increase VFD speed beyond 40 Hz (4.8 SPM) to prevent rod float and fluid pound.
             </p>
@@ -206,16 +205,16 @@ Oil & Natural Gas Corporation Ltd. / Cairn India Jodhpur Operations
         </div>
 
         {/* Sign-off Block */}
-        <div className="pt-4 border-t border-industrial-800 flex justify-between items-end text-[11px]">
+        <div className="pt-6 border-t border-app-border flex justify-between items-end text-xs">
           <div>
-            <div className="text-industrial-400">Inspecting Engineer:</div>
-            <div className="text-white font-bold mt-1">P. Sharma (Senior Production Engineer)</div>
-            <div className="text-industrial-500">Baghewala Sub-Surface Operations Unit</div>
+            <div className="text-app-muted">Inspecting Engineer:</div>
+            <div className="text-app-text font-semibold mt-1">P. Sharma (Senior Production Engineer)</div>
+            <div className="text-app-muted text-[11px]">Baghewala Sub-Surface Operations Unit</div>
           </div>
           <div className="text-right">
-            <div className="text-industrial-400">Asset Verification:</div>
-            <div className="text-emerald-400 font-bold mt-1">APPROVED & LOGGED IN SCADA</div>
-            <div className="text-industrial-500">Digital Signature Hash: #8F94-BW-01</div>
+            <div className="text-app-muted">Asset Verification:</div>
+            <div className="text-app-green font-semibold mt-1">APPROVED & LOGGED IN SCADA</div>
+            <div className="text-app-muted text-[11px]">Digital Signature Hash: #8F94-BW-01</div>
           </div>
         </div>
       </div>

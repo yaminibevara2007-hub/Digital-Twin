@@ -1,6 +1,6 @@
 import React from 'react';
 import { SimulationScenario } from '../types';
-import { Check, Sliders, ArrowRight } from 'lucide-react';
+import { Check, Sliders } from 'lucide-react';
 
 interface ScenarioComparisonProps {
   scenarios: SimulationScenario[];
@@ -18,201 +18,187 @@ export const ScenarioComparison: React.FC<ScenarioComparisonProps> = ({
   const selectedScenario = scenarios.find((s) => s.id === selectedScenarioId) || scenarios[0];
 
   return (
-    <div className="scada-panel p-4 flex flex-col gap-4">
-      <div className="flex items-center justify-between border-b border-industrial-800 pb-2">
+    <div className="bg-white border border-app-border rounded-lg p-6 flex flex-col gap-4">
+      <div className="flex items-center justify-between border-b border-app-border pb-3">
         <div>
-          <span className="text-xs font-mono font-bold text-industrial-200 uppercase tracking-wider flex items-center gap-2">
-            <Sliders className="w-4 h-4 text-sky-400" />
-            Coupled CSS-SRP Scenario Comparison Table
+          <span className="text-sm font-semibold text-app-text tracking-tight flex items-center gap-2">
+            <Sliders className="w-4 h-4 text-app-blue" />
+            CSS-SRP Scenario Comparison Matrix
           </span>
-          <div className="text-[11px] font-mono text-industrial-400">
-            Compare predicted thermal reservoir response and sucker rod lifting dynamics
+          <div className="text-xs text-app-muted">
+            Side-by-side comparison of configured inputs and predicted recovery parameters
           </div>
         </div>
 
         {selectedScenario && (
           <button
             onClick={() => onApplyScenario(selectedScenario)}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded bg-sky-950 border border-sky-600 text-sky-200 text-xs font-mono font-semibold hover:bg-sky-900 transition-colors"
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-md bg-app-navy text-white text-xs font-medium hover:bg-app-navyDark transition-colors"
           >
-            <Check className="w-3.5 h-3.5 text-sky-400" />
+            <Check className="w-3.5 h-3.5" />
             Apply "{selectedScenario.name}"
           </button>
         )}
       </div>
 
-      {/* Comparison Table */}
+      {/* Comparison Table - Clean Light Table */}
       <div className="overflow-x-auto">
-        <table className="w-full text-xs font-mono border-collapse">
+        <table className="w-full text-xs border-collapse">
           <thead>
-            <tr className="bg-industrial-950 border-b border-industrial-800 text-industrial-400 text-left">
-              <th className="py-2.5 px-3">Operating & Predicted Parameter</th>
-              <th className="py-2.5 px-3">Unit</th>
+            <tr className="bg-app-bg border-b border-app-border text-app-text text-left">
+              <th className="py-2.5 px-3 font-semibold">Parameter</th>
+              <th className="py-2.5 px-3 font-medium text-app-muted">Unit</th>
               {scenarios.map((sc) => (
                 <th
                   key={sc.id}
                   onClick={() => onSelectScenario(sc.id)}
-                  className={`py-2.5 px-3 cursor-pointer transition-colors ${
+                  className={`py-2.5 px-3 cursor-pointer transition-colors font-semibold ${
                     sc.id === selectedScenarioId
-                      ? 'bg-industrial-850 text-sky-400 border-t-2 border-sky-400'
-                      : 'text-industrial-300 hover:text-white'
+                      ? 'bg-app-softBlue text-app-navy border-b-2 border-app-navy'
+                      : 'text-app-text hover:bg-[#F1F5F9]'
                   }`}
                 >
                   <div className="flex items-center gap-1.5">
                     <span>{sc.name}</span>
-                    {sc.id === selectedScenarioId && <Check className="w-3.5 h-3.5 text-sky-400" />}
+                    {sc.id === selectedScenarioId && <Check className="w-3.5 h-3.5 text-app-navy" />}
                   </div>
                 </th>
               ))}
             </tr>
           </thead>
-          <tbody className="divide-y divide-industrial-850">
+          <tbody className="divide-y divide-app-border">
             {/* INPUT PARAMETERS SECTION */}
-            <tr className="bg-industrial-900/50 text-[11px] uppercase tracking-wider text-industrial-400 font-bold">
-              <td colSpan={2 + scenarios.length} className="py-1 px-3 bg-industrial-950/80">
-                1. Configured CSS-SRP Inputs
+            <tr className="bg-app-bg/60 text-[11px] uppercase tracking-wider text-app-muted font-semibold">
+              <td colSpan={2 + scenarios.length} className="py-1.5 px-3">
+                1. Operational Inputs
               </td>
             </tr>
-            <tr>
-              <td className="py-2 px-3 text-industrial-300">Steam Injection Volume</td>
-              <td className="py-2 px-3 text-industrial-500">tonnes</td>
+            <tr className="hover:bg-[#F8FAFC]">
+              <td className="py-2 px-3 text-app-text font-medium">Steam Volume</td>
+              <td className="py-2 px-3 text-app-muted">tonnes</td>
               {scenarios.map((s) => (
-                <td key={s.id} className="py-2 px-3 text-industrial-100 font-semibold">{s.steamVolumeTonnes}</td>
+                <td key={s.id} className="py-2 px-3 text-app-text">{s.steamVolumeTonnes}</td>
               ))}
             </tr>
-            <tr>
-              <td className="py-2 px-3 text-industrial-300">Injection Pressure</td>
-              <td className="py-2 px-3 text-industrial-500">psi</td>
+            <tr className="hover:bg-[#F8FAFC]">
+              <td className="py-2 px-3 text-app-text font-medium">Injection Pressure</td>
+              <td className="py-2 px-3 text-app-muted">psi</td>
               {scenarios.map((s) => (
-                <td key={s.id} className="py-2 px-3 text-industrial-100">{s.injectionPressurePsi}</td>
+                <td key={s.id} className="py-2 px-3 text-app-text">{s.injectionPressurePsi}</td>
               ))}
             </tr>
-            <tr>
-              <td className="py-2 px-3 text-industrial-300">Injection Duration</td>
-              <td className="py-2 px-3 text-industrial-500">days</td>
+            <tr className="hover:bg-[#F8FAFC]">
+              <td className="py-2 px-3 text-app-text font-medium">Injection Duration</td>
+              <td className="py-2 px-3 text-app-muted">days</td>
               {scenarios.map((s) => (
-                <td key={s.id} className="py-2 px-3 text-industrial-100">{s.injectionDurationDays}</td>
+                <td key={s.id} className="py-2 px-3 text-app-text">{s.injectionDurationDays}</td>
               ))}
             </tr>
-            <tr>
-              <td className="py-2 px-3 text-industrial-300">Soak Period Duration</td>
-              <td className="py-2 px-3 text-industrial-500">days</td>
+            <tr className="hover:bg-[#F8FAFC]">
+              <td className="py-2 px-3 text-app-text font-medium">Thermal Soak Period</td>
+              <td className="py-2 px-3 text-app-muted">days</td>
               {scenarios.map((s) => (
-                <td key={s.id} className="py-2 px-3 text-industrial-100">{s.soakDays}</td>
+                <td key={s.id} className="py-2 px-3 text-app-text">{s.soakDays}</td>
               ))}
             </tr>
-            <tr>
-              <td className="py-2 px-3 text-industrial-300">SRP Pumping Speed</td>
-              <td className="py-2 px-3 text-industrial-500">SPM</td>
+            <tr className="hover:bg-[#F8FAFC]">
+              <td className="py-2 px-3 text-app-text font-medium">SRP Pumping Speed</td>
+              <td className="py-2 px-3 text-app-muted">SPM</td>
               {scenarios.map((s) => (
-                <td key={s.id} className="py-2 px-3 text-industrial-100 font-semibold">{s.srpSPM}</td>
+                <td key={s.id} className="py-2 px-3 text-app-navy font-semibold">{s.srpSPM}</td>
               ))}
             </tr>
-            <tr>
-              <td className="py-2 px-3 text-industrial-300">SRP Stroke Length</td>
-              <td className="py-2 px-3 text-industrial-500">inches</td>
+            <tr className="hover:bg-[#F8FAFC]">
+              <td className="py-2 px-3 text-app-text font-medium">Stroke Length</td>
+              <td className="py-2 px-3 text-app-muted">inches</td>
               {scenarios.map((s) => (
-                <td key={s.id} className="py-2 px-3 text-industrial-100">{s.srpStrokeLengthInches}</td>
+                <td key={s.id} className="py-2 px-3 text-app-text">{s.srpStrokeLengthInches}</td>
               ))}
             </tr>
-            <tr>
-              <td className="py-2 px-3 text-industrial-300">VFD Drive Frequency</td>
-              <td className="py-2 px-3 text-industrial-500">Hz</td>
+            <tr className="hover:bg-[#F8FAFC]">
+              <td className="py-2 px-3 text-app-text font-medium">VFD Drive Frequency</td>
+              <td className="py-2 px-3 text-app-muted">Hz</td>
               {scenarios.map((s) => (
-                <td key={s.id} className="py-2 px-3 text-industrial-100">{s.vfdFrequencyHz}</td>
+                <td key={s.id} className="py-2 px-3 text-app-text">{s.vfdFrequencyHz}</td>
               ))}
             </tr>
 
             {/* PREDICTED ENGINEERING OUTCOMES */}
-            <tr className="bg-industrial-900/50 text-[11px] uppercase tracking-wider text-industrial-400 font-bold">
-              <td colSpan={2 + scenarios.length} className="py-1 px-3 bg-industrial-950/80">
-                2. Predicted Subsurface & Surface Response
+            <tr className="bg-app-bg/60 text-[11px] uppercase tracking-wider text-app-muted font-semibold">
+              <td colSpan={2 + scenarios.length} className="py-1.5 px-3">
+                2. Predicted Subsurface & Lifting Outcomes
               </td>
             </tr>
-            <tr>
-              <td className="py-2 px-3 text-industrial-300 font-semibold">Average Oil Production Rate</td>
-              <td className="py-2 px-3 text-industrial-500">bbl/day</td>
+            <tr className="hover:bg-[#F8FAFC]">
+              <td className="py-2 px-3 text-app-text font-semibold">Average Oil Production</td>
+              <td className="py-2 px-3 text-app-muted">bbl/day</td>
               {scenarios.map((s) => (
-                <td key={s.id} className="py-2 px-3 text-sky-400 font-bold text-sm">
+                <td key={s.id} className="py-2 px-3 text-app-blue font-bold text-sm">
                   {s.predictedAvgOilRateBOPD}
                 </td>
               ))}
             </tr>
-            <tr>
-              <td className="py-2 px-3 text-industrial-300">Cumulative Cycle Production</td>
-              <td className="py-2 px-3 text-industrial-500">bbl</td>
+            <tr className="hover:bg-[#F8FAFC]">
+              <td className="py-2 px-3 text-app-text font-medium">Cumulative Oil Recovery</td>
+              <td className="py-2 px-3 text-app-muted">bbl</td>
               {scenarios.map((s) => (
-                <td key={s.id} className="py-2 px-3 text-industrial-100 font-semibold">{s.predictedCumulativeOilBbl}</td>
+                <td key={s.id} className="py-2 px-3 text-app-text font-semibold">{s.predictedCumulativeOilBbl.toLocaleString()}</td>
               ))}
             </tr>
-            <tr>
-              <td className="py-2 px-3 text-industrial-300">Peak Near-Wellbore Temp</td>
-              <td className="py-2 px-3 text-industrial-500">°C</td>
+            <tr className="hover:bg-[#F8FAFC]">
+              <td className="py-2 px-3 text-app-text font-medium">Peak Reservoir Temp</td>
+              <td className="py-2 px-3 text-app-muted">°C</td>
               {scenarios.map((s) => (
-                <td key={s.id} className="py-2 px-3 text-petro-orange font-semibold">{s.predictedPeakTempC}</td>
+                <td key={s.id} className="py-2 px-3 text-app-steam font-semibold">{s.predictedPeakTempC}</td>
               ))}
             </tr>
-            <tr>
-              <td className="py-2 px-3 text-industrial-300">Operating Viscosity</td>
-              <td className="py-2 px-3 text-industrial-500">cP</td>
+            <tr className="hover:bg-[#F8FAFC]">
+              <td className="py-2 px-3 text-app-text font-medium">Operating Viscosity</td>
+              <td className="py-2 px-3 text-app-muted">cP</td>
               {scenarios.map((s) => (
-                <td key={s.id} className="py-2 px-3 text-industrial-100">{s.predictedViscosityCP}</td>
+                <td key={s.id} className="py-2 px-3 text-app-text">{s.predictedViscosityCP}</td>
               ))}
             </tr>
-            <tr>
-              <td className="py-2 px-3 text-industrial-300">Downhole Pump Fillage</td>
-              <td className="py-2 px-3 text-industrial-500">%</td>
+            <tr className="hover:bg-[#F8FAFC]">
+              <td className="py-2 px-3 text-app-text font-medium">Pump Fillage</td>
+              <td className="py-2 px-3 text-app-muted">%</td>
               {scenarios.map((s) => (
-                <td key={s.id} className="py-2 px-3 text-emerald-400 font-semibold">{s.predictedPumpFillagePct}%</td>
+                <td key={s.id} className="py-2 px-3 text-app-green font-semibold">{s.predictedPumpFillagePct}%</td>
               ))}
             </tr>
-            <tr>
-              <td className="py-2 px-3 text-industrial-300">Steam-Oil Ratio (SOR)</td>
-              <td className="py-2 px-3 text-industrial-500">bbl/bbl</td>
+            <tr className="hover:bg-[#F8FAFC]">
+              <td className="py-2 px-3 text-app-text font-medium">Steam-Oil Ratio (SOR)</td>
+              <td className="py-2 px-3 text-app-muted">bbl/bbl</td>
               {scenarios.map((s) => (
-                <td key={s.id} className="py-2 px-3 text-industrial-200">{s.predictedSOR}</td>
+                <td key={s.id} className="py-2 px-3 text-app-text">{s.predictedSOR}</td>
               ))}
             </tr>
-            <tr>
-              <td className="py-2 px-3 text-industrial-300">Specific Lifting Energy</td>
-              <td className="py-2 px-3 text-industrial-500">kWh/bbl</td>
+            <tr className="hover:bg-[#F8FAFC]">
+              <td className="py-2 px-3 text-app-text font-medium">Specific Lifting Energy</td>
+              <td className="py-2 px-3 text-app-muted">kWh/bbl</td>
               {scenarios.map((s) => (
-                <td key={s.id} className="py-2 px-3 text-industrial-200">{s.predictedEnergyKWhBbl}</td>
+                <td key={s.id} className="py-2 px-3 text-app-text">{s.predictedEnergyKWhBbl}</td>
               ))}
             </tr>
-            <tr>
-              <td className="py-2 px-3 text-industrial-300">Rod-Floating Risk Index</td>
-              <td className="py-2 px-3 text-industrial-500">%</td>
+            <tr className="hover:bg-[#F8FAFC]">
+              <td className="py-2 px-3 text-app-text font-medium">Rod-Floating Risk Index</td>
+              <td className="py-2 px-3 text-app-muted">%</td>
               {scenarios.map((s) => (
                 <td
                   key={s.id}
                   className={`py-2 px-3 font-semibold ${
-                    s.predictedRodFloatRiskPct > 60 ? 'text-amber-400' : 'text-emerald-400'
+                    s.predictedRodFloatRiskPct > 60 ? 'text-app-amber' : 'text-app-green'
                   }`}
                 >
                   {s.predictedRodFloatRiskPct}%
                 </td>
               ))}
             </tr>
-            <tr>
-              <td className="py-2 px-3 text-industrial-300">Mechanical Failure Risk</td>
-              <td className="py-2 px-3 text-industrial-500">%</td>
+            <tr className="bg-app-bg/50 font-bold">
+              <td className="py-2.5 px-3 text-app-text">Engineering Utility Score</td>
+              <td className="py-2.5 px-3 text-app-muted">Index (0-100)</td>
               {scenarios.map((s) => (
-                <td
-                  key={s.id}
-                  className={`py-2 px-3 font-semibold ${
-                    s.predictedPumpFailureRiskPct > 50 ? 'text-petro-red' : 'text-industrial-300'
-                  }`}
-                >
-                  {s.predictedPumpFailureRiskPct}%
-                </td>
-              ))}
-            </tr>
-            <tr className="bg-industrial-950 font-bold">
-              <td className="py-2.5 px-3 text-sky-300">Engineering Utility Score</td>
-              <td className="py-2.5 px-3 text-industrial-500">Index (0-100)</td>
-              {scenarios.map((s) => (
-                <td key={s.id} className="py-2.5 px-3 text-sky-400 text-sm">
+                <td key={s.id} className="py-2.5 px-3 text-app-navy text-sm font-semibold">
                   {s.economicNetIndex} / 100
                 </td>
               ))}

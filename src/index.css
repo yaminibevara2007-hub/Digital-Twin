@@ -4,14 +4,16 @@
 
 @layer base {
   :root {
-    --bg-primary: #0b1320;
-    --bg-panel: #111c2e;
-    --border-color: #1c2c47;
+    --bg-main: #F7F8FA;
+    --surface: #FFFFFF;
+    --border: #E5E7EB;
+    --text-primary: #172033;
+    --text-secondary: #64748B;
   }
 
   body {
-    background-color: #0b1320;
-    color: #e2e8f0;
+    background-color: #F7F8FA;
+    color: #172033;
     font-family: 'Inter', system-ui, -apple-system, sans-serif;
     margin: 0;
     padding: 0;
@@ -23,49 +25,51 @@
     display: flex;
     flex-direction: column;
     width: 100%;
+    background-color: #F7F8FA;
   }
 
-  /* Industrial subtle scrollbar */
+  /* Subtle engineering light scrollbar */
   ::-webkit-scrollbar {
     width: 6px;
     height: 6px;
   }
   ::-webkit-scrollbar-track {
-    background: #0b1320;
+    background: #F7F8FA;
   }
   ::-webkit-scrollbar-thumb {
-    background: #1c2c47;
-    border-radius: 2px;
+    background: #CBD5E1;
+    border-radius: 3px;
   }
   ::-webkit-scrollbar-thumb:hover {
-    background: #2b3f63;
+    background: #94A3B8;
   }
 }
 
-/* Engineering SCADA table & meter utilities */
-.scada-panel {
-  background-color: #111c2e;
-  border: 1px solid #1c2c47;
-  border-radius: 4px;
+/* Engineering surface and card definitions */
+.eng-card {
+  background-color: #FFFFFF;
+  border: 1px solid #E5E7EB;
+  border-radius: 8px;
 }
 
-.scada-panel-active {
-  background-color: #16233b;
-  border: 1px solid #2b3f63;
+.eng-card-subtle {
+  background-color: #FBFBFC;
+  border: 1px solid #E5E7EB;
+  border-radius: 8px;
 }
 
-.scada-data-cell {
+.eng-data-cell {
   font-family: 'IBM Plex Mono', 'Roboto Mono', monospace;
   font-variant-numeric: tabular-nums;
 }
 
-/* Subtle pulse for active telemetry only */
-@keyframes telemetry-ping {
+/* Minimal engineering status indicator pulse */
+@keyframes eng-ping {
   0% { opacity: 1; transform: scale(1); }
   50% { opacity: 0.4; transform: scale(1.1); }
   100% { opacity: 1; transform: scale(1); }
 }
 
-.telemetry-live {
-  animation: telemetry-ping 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+.eng-live-pulse {
+  animation: eng-ping 2.5s cubic-bezier(0.4, 0, 0.6, 1) infinite;
 }

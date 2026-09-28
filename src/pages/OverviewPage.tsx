@@ -1,20 +1,16 @@
-import React from 'react';
-import { TelemetryData, WellInfo } from '../types';
-import { MetricCard } from '../components/MetricCard';
+import React, { useState, useMemo } from 'react';
+import { TelemetryData, WellInfo, NavTab } from '../types';
+import { generateTimeSeriesData } from '../services/mockDataService';
 import { 
-  AlertTriangle, 
-  CheckCircle, 
-  ArrowUpRight, 
-  Flame, 
-  Wrench, 
-  Droplet, 
-  Gauge, 
-  Activity, 
-  Zap,
-  ShieldCheck,
-  HelpCircle
-} from 'lucide-react';
-import { NavTab } from '../components/Sidebar';
+  ResponsiveContainer, 
+  LineChart, 
+  Line, 
+  XAxis, 
+  YAxis, 
+  Tooltip, 
+  CartesianGrid 
+} from 'recharts';
+import { ArrowUpRight } from 'lucide-react';
 
 interface OverviewPageProps {
   well: WellInfo;
@@ -22,388 +18,363 @@ interface OverviewPageProps {
   onNavigate: (tab: NavTab) => void;
 }
 
+type TimeframeOption = '7D' | '30D' | '90D';
+
 export const OverviewPage: React.FC<OverviewPageProps> = ({ well, telemetry, onNavigate }) => {
+  const [timeframe, setTimeframe] = useState<TimeframeOption>('30D');
+
+  // Time-series data for the production trend chart
+  const chartData = useMemo(() => {
+    const serviceTf = timeframe === '90D' ? 'CYCLE' : timeframe;
+    return generateTimeSeriesData(well.id, serviceTf);
+  }, [well.id, timeframe]);
+
+  // Alert evaluation
+  const isCoolingWatch = telemetry.reservoirTempC < 65 || well.id === 'BW-04';
   const isRodFloatWatch = telemetry.rodFloatRiskPct > 60;
-  const isCoolingAlert = telemetry.reservoirTempC < 60;
+  const hasAlert = isCoolingWatch || isRodFloatWatch;
+
+  // Well formatted display name
+  const wellCode = well.name.replace('BW-', 'BGW-').split(' ')[0];
 
   return (
-    <div className="space-y-4">
-      {/* Executive Operational Diagnostic Banner */}
-      <div className="scada-panel p-4 border-l-4 border-l-sky-500 flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+    <div className="space-y-8 select-none">
+      {/* 1. PAGE HEADER: Spacious, no big card wrapper */}
+      <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 pb-2">
         <div>
-          <div className="flex items-center gap-2 mb-1">
-            <span className="text-xs font-mono font-bold text-sky-400 uppercase tracking-wider">
-              Primary Operating Condition: {well.name}
-            </span>
-            <span className="text-industrial-500">|</span>
-            <span className="text-xs font-mono text-industrial-400">
-              Stage: {well.currentStage} (Day {well.stageDay} of {well.stageTotalDays})
-            </span>
+          <div className="text-xs font-semibold text-app-muted uppercase tracking-wider mb-1">
+            Baghewala Field
           </div>
-
-          <h2 className="text-base font-semibold text-industrial-100 flex items-center gap-2">
-            {isRodFloatWatch ? (
-              <>
-                <AlertTriangle className="w-5 h-5 text-amber-400" />
-                <span>Elevated Downstroke Rod Drag & Float Risk Detected</span>
-              </>
-            ) : isCoolingAlert ? (
-              <>
-                <AlertTriangle className="w-5 h-5 text-amber-400" />
-                <span>Near-Wellbore Thermal Decline Accelerating Viscosity Increase</span>
-              </>
-            ) : (
-              <>
-                <CheckCircle className="w-5 h-5 text-emerald-400" />
-                <span>Well Operating Within Configured Technical Envelope</span>
-              </>
-            )}
-          </h2>
-
-          <p className="text-xs text-industrial-300 mt-1 max-w-3xl leading-relaxed">
-            {isRodFloatWatch
-              ? `Downstroke drag is ${3340 - telemetry.rodFloatMarginLbs} lbs against buoyant rod weight of 3,340 lbs. At ${telemetry.srpSPM} SPM and ${telemetry.estimatedViscosityCP} cP viscosity, polish rod margin is constrained to ${telemetry.rodFloatMarginLbs} lbs. Investigate reducing VFD speed to 35 Hz (4.0 SPM) or preparing CSS cycle turn-around.`
-              : isCoolingAlert
-              ? `Near-wellbore temperature has cooled to ${telemetry.reservoirTempC} °C, driving crude viscosity to ${telemetry.estimatedViscosityCP} cP. Production rate is ${telemetry.oilRateBOPD} bbl/day with pump fillage at ${telemetry.pumpFillagePct}%. Plan CSS cycle turn-around.`
-              : `Steady production phase in cycle ${well.currentCycle}. Thermal radius maintained at ${telemetry.thermalZoneRadiusMeters}m with crude viscosity at ${telemetry.estimatedViscosityCP} cP. SRP speed of ${telemetry.srpSPM} SPM provides optimal ${telemetry.pumpFillagePct}% pump fillage.`}
+          <h1 className="text-2xl font-semibold text-app-text tracking-tight">
+            Well Operating Overview
+          </h1>
+          <p className="text-[13px] text-app-muted mt-1 font-normal">
+            Well {wellCode} · {well.currentStage === 'PRODUCTION' ? 'Producer' : well.currentStage} · Production Cycle {well.currentCycle} · Day {well.stageDay} of {well.stageTotalDays}
           </p>
         </div>
 
-        {/* Quick Action Buttons */}
-        <div className="flex flex-wrap md:flex-col gap-2 shrink-0">
+        <div className="flex items-center gap-2">
+          {hasAlert ? (
+            <span className="inline-flex items-center gap-2 px-3 py-1.5 rounded-md bg-app-softAmber border border-[#FEEBAA] text-xs font-medium text-app-amber">
+              <span className="w-2 h-2 rounded-full bg-app-amber" />
+              <span>Attention Recommended</span>
+            </span>
+          ) : (
+            <span className="inline-flex items-center gap-2 px-3 py-1.5 rounded-md bg-app-softGreen border border-[#D5EFE1] text-xs font-medium text-app-green">
+              <span className="w-2 h-2 rounded-full bg-app-green" />
+              <span>Operating Normally</span>
+            </span>
+          )}
+        </div>
+      </div>
+
+      {/* 2. EXACTLY 4 PRIMARY KPI CARDS (Section 6) */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        {/* KPI 1: Oil Production */}
+        <div className="bg-white border border-app-border rounded-lg p-5">
+          <div className="text-xs text-app-muted font-normal">
+            Oil Production
+          </div>
+          <div className="flex items-baseline gap-2 mt-2">
+            <span className="text-[28px] font-semibold text-app-text tracking-tight font-mono">
+              {telemetry.oilRateBOPD.toFixed(1)}
+            </span>
+            <span className="text-xs text-app-muted font-normal">
+              bbl/day
+            </span>
+          </div>
+          <div className="text-xs text-app-green font-medium mt-2 flex items-center gap-1.5">
+            <span className="w-1.5 h-1.5 rounded-full bg-app-green" />
+            <span>Normal</span>
+          </div>
+        </div>
+
+        {/* KPI 2: Reservoir Temperature */}
+        <div className="bg-white border border-app-border rounded-lg p-5">
+          <div className="text-xs text-app-muted font-normal">
+            Reservoir Temperature
+          </div>
+          <div className="flex items-baseline gap-2 mt-2">
+            <span className="text-[28px] font-semibold text-app-text tracking-tight font-mono">
+              {Math.round(telemetry.reservoirTempC)}
+            </span>
+            <span className="text-xs text-app-muted font-normal">
+              °C
+            </span>
+          </div>
+          <div className={`text-xs font-medium mt-2 flex items-center gap-1.5 ${isCoolingWatch ? 'text-app-amber' : 'text-app-green'}`}>
+            <span className={`w-1.5 h-1.5 rounded-full ${isCoolingWatch ? 'bg-app-amber' : 'bg-app-green'}`} />
+            <span>{isCoolingWatch ? 'Cooling Watch' : 'Normal'}</span>
+          </div>
+        </div>
+
+        {/* KPI 3: SRP Speed */}
+        <div className="bg-white border border-app-border rounded-lg p-5">
+          <div className="text-xs text-app-muted font-normal">
+            SRP Speed
+          </div>
+          <div className="flex items-baseline gap-2 mt-2">
+            <span className="text-[28px] font-semibold text-app-text tracking-tight font-mono">
+              {telemetry.srpSPM.toFixed(1)}
+            </span>
+            <span className="text-xs text-app-muted font-normal">
+              SPM
+            </span>
+          </div>
+          <div className="text-xs text-app-green font-medium mt-2 flex items-center gap-1.5">
+            <span className="w-1.5 h-1.5 rounded-full bg-app-green" />
+            <span>Normal</span>
+          </div>
+        </div>
+
+        {/* KPI 4: Specific SOR */}
+        <div className="bg-white border border-app-border rounded-lg p-5">
+          <div className="text-xs text-app-muted font-normal">
+            Specific SOR
+          </div>
+          <div className="flex items-baseline gap-2 mt-2">
+            <span className="text-[28px] font-semibold text-app-text tracking-tight font-mono">
+              {telemetry.steamOilRatioSOR.toFixed(2)}
+            </span>
+            <span className="text-xs text-app-muted font-normal">
+              bbl/bbl
+            </span>
+          </div>
+          <div className="text-xs text-app-green font-medium mt-2 flex items-center gap-1.5">
+            <span className="w-1.5 h-1.5 rounded-full bg-app-green" />
+            <span>Normal</span>
+          </div>
+        </div>
+      </div>
+
+      {/* 3. MAIN CONTENT: TWO MAJOR SECTIONS (LEFT: Chart, RIGHT: Status) */}
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+        {/* LEFT PANEL: Production Trend (8 cols) */}
+        <div className="lg:col-span-8 bg-white border border-app-border rounded-lg p-5">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-6">
+            <div>
+              <h2 className="text-base font-semibold text-app-text tracking-tight">
+                Production Trend
+              </h2>
+              <div className="flex items-center gap-4 text-xs text-app-muted mt-1">
+                <span className="flex items-center gap-1.5">
+                  <span className="w-3 h-0.5 bg-app-navy rounded" />
+                  <span>Actual Production</span>
+                </span>
+                <span className="flex items-center gap-1.5">
+                  <span className="w-3 h-0.5 border-b-2 border-dashed border-app-muted" />
+                  <span>Predicted Production</span>
+                </span>
+              </div>
+            </div>
+
+            {/* Timeframe Toggles: 7D, 30D, 90D */}
+            <div className="flex items-center rounded-md bg-app-bg p-0.5 border border-app-border text-xs">
+              {(['7D', '30D', '90D'] as TimeframeOption[]).map((tf) => (
+                <button
+                  key={tf}
+                  onClick={() => setTimeframe(tf)}
+                  className={`px-3 py-1 rounded text-xs font-medium transition-colors ${
+                    timeframe === tf
+                      ? 'bg-white text-app-navy font-semibold shadow-xs'
+                      : 'text-app-muted hover:text-app-text'
+                  }`}
+                >
+                  {tf}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Clean Line Chart */}
+          <div className="h-72 w-full">
+            <ResponsiveContainer width="100%" height="100%">
+              <LineChart data={chartData} margin={{ top: 8, right: 12, left: -16, bottom: 4 }}>
+                <CartesianGrid stroke="#F1F5F9" vertical={false} />
+                <XAxis 
+                  dataKey="timeLabel" 
+                  stroke="#94A3B8" 
+                  fontSize={11} 
+                  tickLine={false} 
+                  axisLine={{ stroke: '#E5E7EB' }}
+                  interval="preserveStartEnd"
+                />
+                <YAxis 
+                  stroke="#94A3B8" 
+                  fontSize={11} 
+                  tickLine={false} 
+                  axisLine={false}
+                  domain={['auto', 'auto']}
+                  unit=" bbl"
+                />
+                <Tooltip
+                  content={({ active, payload, label }) => {
+                    if (active && payload && payload.length) {
+                      return (
+                        <div className="bg-white border border-app-border rounded-md shadow-xs p-2.5 text-xs text-app-text font-sans">
+                          <div className="text-[11px] text-app-muted mb-1.5 font-medium">{label}</div>
+                          <div className="space-y-1">
+                            <div className="flex items-center justify-between gap-4">
+                              <span className="text-app-muted flex items-center gap-1.5">
+                                <span className="w-2 h-2 rounded-full bg-app-navy" />
+                                Actual:
+                              </span>
+                              <span className="font-mono font-semibold text-app-text">
+                                {payload[0]?.value} bbl/day
+                              </span>
+                            </div>
+                            <div className="flex items-center justify-between gap-4">
+                              <span className="text-app-muted flex items-center gap-1.5">
+                                <span className="w-2 h-2 rounded-full bg-slate-400" />
+                                Predicted:
+                              </span>
+                              <span className="font-mono font-medium text-app-muted">
+                                {payload[1]?.value} bbl/day
+                              </span>
+                            </div>
+                          </div>
+                        </div>
+                      );
+                    }
+                    return null;
+                  }}
+                />
+                <Line
+                  type="monotone"
+                  dataKey="oilRate"
+                  name="Actual Production"
+                  stroke="#183B56"
+                  strokeWidth={2}
+                  dot={false}
+                  activeDot={{ r: 4, stroke: '#183B56', strokeWidth: 2, fill: '#FFFFFF' }}
+                />
+                <Line
+                  type="monotone"
+                  dataKey="predictedOilRate"
+                  name="Predicted Production"
+                  stroke="#64748B"
+                  strokeWidth={1.5}
+                  strokeDasharray="4 4"
+                  dot={false}
+                />
+              </LineChart>
+            </ResponsiveContainer>
+          </div>
+        </div>
+
+        {/* RIGHT PANEL: Well Status (4 cols) */}
+        <div className="lg:col-span-4 bg-white border border-app-border rounded-lg p-5">
+          <h2 className="text-base font-semibold text-app-text tracking-tight mb-4">
+            Well Status
+          </h2>
+
+          <div className="space-y-4 text-xs">
+            {/* Reservoir */}
+            <div className="flex items-center justify-between py-2 border-b border-[#F1F5F9]">
+              <span className="text-app-text font-medium">Reservoir</span>
+              <span className="flex items-center gap-1.5 text-app-green font-medium">
+                <span className="w-2 h-2 rounded-full bg-app-green" />
+                <span>Normal</span>
+              </span>
+            </div>
+
+            {/* CSS Cycle */}
+            <div className="flex items-center justify-between py-2 border-b border-[#F1F5F9]">
+              <span className="text-app-text font-medium">CSS Cycle</span>
+              <span className="flex items-center gap-1.5 text-app-green font-medium">
+                <span className="w-2 h-2 rounded-full bg-app-green" />
+                <span>Normal</span>
+              </span>
+            </div>
+
+            {/* SRP */}
+            <div className="flex items-center justify-between py-2 border-b border-[#F1F5F9]">
+              <span className="text-app-text font-medium">SRP</span>
+              <span className="flex items-center gap-1.5 text-app-green font-medium">
+                <span className="w-2 h-2 rounded-full bg-app-green" />
+                <span>Normal</span>
+              </span>
+            </div>
+
+            {/* Production */}
+            <div className="flex items-center justify-between py-2 border-b border-[#F1F5F9]">
+              <span className="text-app-text font-medium">Production</span>
+              <span className="flex items-center gap-1.5 text-app-green font-medium">
+                <span className="w-2 h-2 rounded-full bg-app-green" />
+                <span>Normal</span>
+              </span>
+            </div>
+
+            {/* Energy */}
+            <div className="flex items-center justify-between py-2">
+              <span className="text-app-text font-medium">Energy</span>
+              <span className="flex items-center gap-1.5 text-app-green font-medium">
+                <span className="w-2 h-2 rounded-full bg-app-green" />
+                <span>Normal</span>
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* 4. CURRENT OPERATING CONDITION (Section 9) */}
+      <div className="bg-white border border-app-border rounded-lg p-5 flex flex-col md:flex-row items-start md:items-center justify-between gap-5">
+        <div>
+          <div className="text-[11px] font-semibold text-app-muted uppercase tracking-wider">
+            Current Operating Condition
+          </div>
+          <div className="text-sm font-semibold text-app-text mt-0.5">
+            Production Cycle {well.currentCycle} · Day {well.stageDay} / {well.stageTotalDays}
+          </div>
+          <p className="text-xs text-app-muted mt-1 leading-relaxed max-w-2xl font-normal">
+            Reservoir temperature and SRP operation are currently within the configured operating range.
+          </p>
+        </div>
+
+        {/* Exactly two buttons (Section 9) */}
+        <div className="flex items-center gap-3 shrink-0">
           <button
             onClick={() => onNavigate('digital_twin')}
-            className="px-3 py-1.5 rounded bg-sky-950 border border-sky-600 text-sky-200 text-xs font-mono font-medium hover:bg-sky-900 transition-colors flex items-center gap-1.5"
+            className="px-4 py-2 rounded-md bg-app-navy text-white text-xs font-medium hover:bg-app-navyDark transition-colors flex items-center gap-1.5"
           >
-            Inspect Digital Twin
+            <span>View Digital Twin</span>
             <ArrowUpRight className="w-3.5 h-3.5" />
           </button>
           <button
             onClick={() => onNavigate('srp_opt')}
-            className="px-3 py-1.5 rounded bg-industrial-800 border border-industrial-700 text-industrial-200 text-xs font-mono font-medium hover:bg-industrial-750 transition-colors flex items-center gap-1.5"
+            className="px-4 py-2 rounded-md bg-white border border-app-border text-app-text text-xs font-medium hover:bg-app-bg transition-colors flex items-center gap-1.5"
           >
-            Review SRP Limits
+            <span>Review Operating Parameters</span>
             <ArrowUpRight className="w-3.5 h-3.5" />
           </button>
         </div>
       </div>
 
-      {/* Six Primary Domain Health Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
-        {/* 1. Production Performance */}
-        <div className="scada-panel p-3">
-          <div className="flex items-center justify-between border-b border-industrial-800 pb-2 mb-2">
-            <span className="text-xs font-mono font-semibold text-industrial-200 uppercase flex items-center gap-1.5">
-              <Droplet className="w-4 h-4 text-sky-400" />
-              Surface Production
-            </span>
-            <span className="text-[11px] font-mono text-emerald-400 font-semibold">
-              {telemetry.oilRateBOPD} bbl/d
-            </span>
+      {/* 5. IMPORTANT ALERT SECTION (Section 10) */}
+      {hasAlert ? (
+        <div className="bg-app-softAmber/40 border border-[#FEEBAA] rounded-lg p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div>
+            <div className="text-[11px] font-semibold text-app-amber uppercase tracking-wider">
+              Attention
+            </div>
+            <div className="text-xs text-app-text font-medium mt-1">
+              Viscosity is increasing as the thermal zone cools. Review the next CSS cycle.
+            </div>
           </div>
-          <div className="space-y-1.5 text-xs font-mono">
-            <div className="flex justify-between text-industrial-400">
-              <span>Water Cut:</span>
-              <span className="text-industrial-200">{telemetry.waterCutPct}% ({telemetry.waterRateBWPD} bbl/d)</span>
-            </div>
-            <div className="flex justify-between text-industrial-400">
-              <span>Wellhead Pressure:</span>
-              <span className="text-industrial-200">{telemetry.wellheadPressurePsi} psi</span>
-            </div>
-            <div className="flex justify-between text-industrial-400">
-              <span>Specific Lifting Energy:</span>
-              <span className="text-industrial-200">{telemetry.energyConsumptionKWhBbl} kWh/bbl</span>
-            </div>
+          <button
+            onClick={() => onNavigate('css_opt')}
+            className="px-3.5 py-1.5 rounded-md bg-white border border-[#FEEBAA] text-app-amber hover:text-app-text text-xs font-medium hover:bg-white/80 transition-colors shrink-0"
+          >
+            View Details
+          </button>
+        </div>
+      ) : (
+        <div className="bg-white border border-app-border rounded-lg p-5 flex items-center justify-between gap-4">
+          <div className="text-xs text-app-muted">
+            <span className="font-medium text-app-text">No immediate attention required.</span> All monitored parameters are within the configured operating range.
           </div>
         </div>
-
-        {/* 2. Reservoir Thermal Condition */}
-        <div className="scada-panel p-3">
-          <div className="flex items-center justify-between border-b border-industrial-800 pb-2 mb-2">
-            <span className="text-xs font-mono font-semibold text-industrial-200 uppercase flex items-center gap-1.5">
-              <Flame className="w-4 h-4 text-petro-orange" />
-              Thermal Reservoir Status
-            </span>
-            <span className="text-[11px] font-mono text-petro-orange font-semibold">
-              {telemetry.reservoirTempC} °C
-            </span>
-          </div>
-          <div className="space-y-1.5 text-xs font-mono">
-            <div className="flex justify-between text-industrial-400">
-              <span>Estimated Crude Viscosity:</span>
-              <span className="text-industrial-200">{telemetry.estimatedViscosityCP} cP</span>
-            </div>
-            <div className="flex justify-between text-industrial-400">
-              <span>Fluid Mobility (k/μ):</span>
-              <span className="text-sky-400">{telemetry.fluidMobilityMD_CP} mD/cP</span>
-            </div>
-            <div className="flex justify-between text-industrial-400">
-              <span>Near-Wellbore Thermal Zone:</span>
-              <span className="text-industrial-200">{telemetry.thermalZoneRadiusMeters} m radius</span>
-            </div>
-          </div>
-        </div>
-
-        {/* 3. SRP Mechanical Performance */}
-        <div className="scada-panel p-3">
-          <div className="flex items-center justify-between border-b border-industrial-800 pb-2 mb-2">
-            <span className="text-xs font-mono font-semibold text-industrial-200 uppercase flex items-center gap-1.5">
-              <Wrench className="w-4 h-4 text-emerald-400" />
-              SRP Operating Dynamics
-            </span>
-            <span className="text-[11px] font-mono text-emerald-400 font-semibold">
-              {telemetry.srpSPM} SPM ({telemetry.vfdFrequencyHz} Hz)
-            </span>
-          </div>
-          <div className="space-y-1.5 text-xs font-mono">
-            <div className="flex justify-between text-industrial-400">
-              <span>Stroke Length:</span>
-              <span className="text-industrial-200">{telemetry.srpStrokeLengthInches}"</span>
-            </div>
-            <div className="flex justify-between text-industrial-400">
-              <span>Pump Fillage / Vol. Eff:</span>
-              <span className="text-industrial-200">{telemetry.pumpFillagePct}% / {telemetry.pumpEfficiencyPct}%</span>
-            </div>
-            <div className="flex justify-between text-industrial-400">
-              <span>Peak Polished Rod Load:</span>
-              <span className="text-industrial-200">{telemetry.peakPolishedRodLoadLbs} lbs</span>
-            </div>
-          </div>
-        </div>
-
-        {/* 4. Equipment Health & Rod Float Risk */}
-        <div className="scada-panel p-3">
-          <div className="flex items-center justify-between border-b border-industrial-800 pb-2 mb-2">
-            <span className="text-xs font-mono font-semibold text-industrial-200 uppercase flex items-center gap-1.5">
-              <ShieldCheck className="w-4 h-4 text-sky-400" />
-              Rod-Float & Pump Risk
-            </span>
-            <span className={`text-[11px] font-mono font-semibold ${isRodFloatWatch ? 'text-amber-400' : 'text-emerald-400'}`}>
-              {telemetry.rodFloatRiskPct}% Risk
-            </span>
-          </div>
-          <div className="space-y-1.5 text-xs font-mono">
-            <div className="flex justify-between text-industrial-400">
-              <span>Downstroke Fall Margin:</span>
-              <span className={telemetry.rodFloatMarginLbs < 600 ? 'text-amber-400 font-bold' : 'text-industrial-200'}>
-                {telemetry.rodFloatMarginLbs} lbs
-              </span>
-            </div>
-            <div className="flex justify-between text-industrial-400">
-              <span>Viscous Drag Force:</span>
-              <span className="text-industrial-200">{3340 - telemetry.rodFloatMarginLbs} lbs</span>
-            </div>
-            <div className="flex justify-between text-industrial-400">
-              <span>Pump Failure Probability:</span>
-              <span className="text-industrial-200">{telemetry.pumpFailureRiskPct}%</span>
-            </div>
-          </div>
-        </div>
-
-        {/* 5. CSS Cycle & Thermal Recovery */}
-        <div className="scada-panel p-3">
-          <div className="flex items-center justify-between border-b border-industrial-800 pb-2 mb-2">
-            <span className="text-xs font-mono font-semibold text-industrial-200 uppercase flex items-center gap-1.5">
-              <Activity className="w-4 h-4 text-petro-orange" />
-              CSS Cycle Conformance
-            </span>
-            <span className="text-[11px] font-mono text-petro-orange font-semibold">
-              Cycle {well.currentCycle}
-            </span>
-          </div>
-          <div className="space-y-1.5 text-xs font-mono">
-            <div className="flex justify-between text-industrial-400">
-              <span>Specific SOR:</span>
-              <span className="text-industrial-200">{telemetry.steamOilRatioSOR} bbl/bbl</span>
-            </div>
-            <div className="flex justify-between text-industrial-400">
-              <span>Production Stage Progress:</span>
-              <span className="text-industrial-200">{well.stageDay} / {well.stageTotalDays} days</span>
-            </div>
-            <div className="flex justify-between text-industrial-400">
-              <span>Steam Channeling Risk:</span>
-              <span className={telemetry.channelingRiskIndex > 40 ? 'text-petro-red font-semibold' : 'text-emerald-400'}>
-                {telemetry.channelingRiskIndex} / 100
-              </span>
-            </div>
-          </div>
-        </div>
-
-        {/* 6. Pressure Envelopes */}
-        <div className="scada-panel p-3">
-          <div className="flex items-center justify-between border-b border-industrial-800 pb-2 mb-2">
-            <span className="text-xs font-mono font-semibold text-industrial-200 uppercase flex items-center gap-1.5">
-              <Gauge className="w-4 h-4 text-sky-400" />
-              Wellbore Pressure Envelope
-            </span>
-            <span className="text-[11px] font-mono text-industrial-300 font-semibold">
-              TP: {telemetry.tubingPressurePsi} psi
-            </span>
-          </div>
-          <div className="space-y-1.5 text-xs font-mono">
-            <div className="flex justify-between text-industrial-400">
-              <span>Casing Annulus Pressure:</span>
-              <span className="text-industrial-200">{telemetry.casingPressurePsi} psi</span>
-            </div>
-            <div className="flex justify-between text-industrial-400">
-              <span>Bottomhole Flowing Pressure:</span>
-              <span className="text-industrial-200">{telemetry.bottomholePressurePsi} psi</span>
-            </div>
-            <div className="flex justify-between text-industrial-400">
-              <span>Differential Pressure:</span>
-              <span className="text-industrial-200">{telemetry.bottomholePressurePsi - telemetry.tubingPressurePsi} psi</span>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Complete SCADA Engineering Metric Cards Grid (16 Key Parameters) */}
-      <div>
-        <div className="flex items-center justify-between mb-2">
-          <span className="text-xs font-mono font-semibold uppercase tracking-wider text-industrial-400">
-            Instantaneous Field Telemetry & Operating Metrics
-          </span>
-          <span className="text-[11px] font-mono text-industrial-500">
-            SCADA Scan Rate: 5 sec | Baghewala Field
-          </span>
-        </div>
-
-        <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-8 gap-2">
-          <MetricCard
-            label="Oil Rate"
-            value={telemetry.oilRateBOPD}
-            unit="bbl/d"
-            trend="+3.2%"
-            trendDirection="up"
-            status="NORMAL"
-            subtext="WC: 42%"
-          />
-          <MetricCard
-            label="Res. Temp"
-            value={telemetry.reservoirTempC}
-            unit="°C"
-            trend="-0.4°C"
-            trendDirection="down"
-            status={telemetry.reservoirTempC < 60 ? 'WATCH' : 'NORMAL'}
-            subtext="T_near"
-          />
-          <MetricCard
-            label="Viscosity"
-            value={telemetry.estimatedViscosityCP}
-            unit="cP"
-            trend="+5%"
-            trendDirection="up"
-            status={telemetry.estimatedViscosityCP > 1200 ? 'WATCH' : 'NORMAL'}
-            subtext="In-situ"
-          />
-          <MetricCard
-            label="SRP Speed"
-            value={telemetry.srpSPM}
-            unit="SPM"
-            trend="0.0"
-            trendDirection="neutral"
-            status="NORMAL"
-            subtext={`${telemetry.vfdFrequencyHz} Hz`}
-          />
-          <MetricCard
-            label="Pump Fillage"
-            value={telemetry.pumpFillagePct}
-            unit="%"
-            trend="-2%"
-            trendDirection="down"
-            status={telemetry.pumpFillagePct < 70 ? 'WATCH' : 'NORMAL'}
-            subtext="Downhole"
-          />
-          <MetricCard
-            label="Peak Rod Load"
-            value={telemetry.peakPolishedRodLoadLbs}
-            unit="lbs"
-            trend="+120"
-            trendDirection="up"
-            status="NORMAL"
-            subtext="Rating: 18k"
-          />
-          <MetricCard
-            label="Rod Float Risk"
-            value={`${telemetry.rodFloatRiskPct}%`}
-            unit=""
-            trend="+8%"
-            trendDirection="up"
-            status={isRodFloatWatch ? 'WARNING' : 'NORMAL'}
-            subtext={`Margin: ${telemetry.rodFloatMarginLbs} lb`}
-            highlight={isRodFloatWatch}
-          />
-          <MetricCard
-            label="SOR"
-            value={telemetry.steamOilRatioSOR}
-            unit="bbl/bbl"
-            trend="-0.1"
-            trendDirection="down"
-            status="NORMAL"
-            subtext="Cumulative"
-          />
-          <MetricCard
-            label="Wellhead P."
-            value={telemetry.wellheadPressurePsi}
-            unit="psi"
-            trend="0"
-            status="NORMAL"
-            subtext="Surface"
-          />
-          <MetricCard
-            label="Casing P."
-            value={telemetry.casingPressurePsi}
-            unit="psi"
-            trend="+4"
-            status={telemetry.casingPressurePsi > 300 ? 'WARNING' : 'NORMAL'}
-            subtext="Annulus"
-          />
-          <MetricCard
-            label="Tubing P."
-            value={telemetry.tubingPressurePsi}
-            unit="psi"
-            trend="-2"
-            status="NORMAL"
-            subtext="Discharge"
-          />
-          <MetricCard
-            label="Reservoir P."
-            value={telemetry.bottomholePressurePsi}
-            unit="psi"
-            trend="-1"
-            status="NORMAL"
-            subtext="Static"
-          />
-          <MetricCard
-            label="Stroke Length"
-            value={telemetry.srpStrokeLengthInches}
-            unit='"'
-            status="NORMAL"
-            subtext="Mark II"
-          />
-          <MetricCard
-            label="Pump Efficiency"
-            value={telemetry.pumpEfficiencyPct}
-            unit="%"
-            status="NORMAL"
-            subtext="Volumetric"
-          />
-          <MetricCard
-            label="Specific Energy"
-            value={telemetry.energyConsumptionKWhBbl}
-            unit="kWh/bbl"
-            status="NORMAL"
-            subtext="Motor draw"
-          />
-          <MetricCard
-            label="Channeling Risk"
-            value={`${telemetry.channelingRiskIndex}/100`}
-            unit=""
-            status={telemetry.channelingRiskIndex > 50 ? 'CRITICAL' : 'NORMAL'}
-            subtext="Conformance"
-          />
-        </div>
-      </div>
+      )}
     </div>
   );
 };

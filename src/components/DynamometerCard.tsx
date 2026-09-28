@@ -29,69 +29,69 @@ export const DynamometerCard: React.FC<DynamometerCardProps> = ({
   const buoyantWeight = BAGHEWALA_FIELD_CONSTANTS.ROD_BUOYANT_WEIGHT_LBS;
 
   return (
-    <div className="scada-panel p-4 flex flex-col gap-3">
-      <div className="flex items-center justify-between border-b border-industrial-800 pb-2">
+    <div className="bg-white border border-app-border rounded-lg p-6 flex flex-col gap-4">
+      <div className="flex items-center justify-between border-b border-app-border pb-3">
         <div>
-          <span className="text-xs font-mono font-bold text-industrial-200 uppercase tracking-wider">
-            SCADA Polished Rod Dynamometer Card
+          <span className="text-sm font-semibold text-app-text tracking-tight">
+            Polished Rod Dynamometer Card (Surface vs Downhole Plunger)
           </span>
-          <div className="text-[11px] font-mono text-industrial-400">
-            Surface Load vs Downhole Plunger Load (Stroke: {strokeLengthInches}")
+          <div className="text-xs text-app-muted">
+            Surface Stroke Length: {strokeLengthInches}" | Standing & Traveling Valve Cycle
           </div>
         </div>
 
-        <div className="flex items-center gap-3 text-xs font-mono">
-          <div className="flex items-center gap-1.5 bg-industrial-950 px-2 py-1 rounded border border-industrial-800">
-            <span className="text-industrial-400">Pump Fillage:</span>
-            <span className="text-emerald-400 font-semibold">{fillagePct}%</span>
+        <div className="flex items-center gap-3 text-xs">
+          <div className="flex items-center gap-1.5 bg-app-bg px-2.5 py-1 rounded border border-app-border">
+            <span className="text-app-muted">Pump Fillage:</span>
+            <span className="text-app-green font-semibold">{fillagePct}%</span>
           </div>
 
-          <div className="flex items-center gap-1.5 bg-industrial-950 px-2 py-1 rounded border border-industrial-800">
-            <span className="text-industrial-400">Rod Float Risk:</span>
-            <span className={`font-semibold ${rodFloatRiskPct > 60 ? 'text-amber-400' : 'text-emerald-400'}`}>
+          <div className="flex items-center gap-1.5 bg-app-bg px-2.5 py-1 rounded border border-app-border">
+            <span className="text-app-muted">Rod Float Risk:</span>
+            <span className={`font-semibold ${rodFloatRiskPct > 60 ? 'text-app-amber' : 'text-app-green'}`}>
               {rodFloatRiskPct}%
             </span>
           </div>
         </div>
       </div>
 
-      {/* Dyno Graph Container */}
-      <div className="w-full h-72 bg-industrial-950 rounded p-2 border border-industrial-850">
+      {/* Dyno Graph Container - Pure White Canvas */}
+      <div className="w-full h-72 bg-white rounded p-1 border border-app-border">
         <ResponsiveContainer width="100%" height="100%">
           <ComposedChart
             data={data}
-            margin={{ top: 10, right: 25, left: 10, bottom: 20 }}
+            margin={{ top: 15, right: 25, left: 10, bottom: 20 }}
           >
-            <CartesianGrid stroke="#1c2c47" strokeDasharray="3 3" />
+            <CartesianGrid stroke="#F1F5F9" strokeDasharray="3 3" />
             <XAxis
               dataKey="positionInches"
               type="number"
               domain={[0, strokeLengthInches]}
               unit='"'
-              stroke="#5c75a3"
-              tick={{ fontSize: 10, fill: '#8ba2c7', fontFamily: 'monospace' }}
+              stroke="#94A3B8"
+              tick={{ fontSize: 11, fill: '#64748B', fontFamily: 'sans-serif' }}
               label={{
                 value: 'Polished Rod Position (inches)',
                 position: 'insideBottom',
                 offset: -12,
-                fill: '#8ba2c7',
-                fontSize: 10,
-                fontFamily: 'monospace',
+                fill: '#64748B',
+                fontSize: 11,
+                fontFamily: 'sans-serif',
               }}
             />
             <YAxis
               domain={[0, 7500]}
               unit=" lbs"
-              stroke="#5c75a3"
-              tick={{ fontSize: 10, fill: '#8ba2c7', fontFamily: 'monospace' }}
+              stroke="#94A3B8"
+              tick={{ fontSize: 11, fill: '#64748B', fontFamily: 'sans-serif' }}
               label={{
                 value: 'Load (lbs)',
                 angle: -90,
                 position: 'insideLeft',
                 offset: 5,
-                fill: '#8ba2c7',
-                fontSize: 10,
-                fontFamily: 'monospace',
+                fill: '#64748B',
+                fontSize: 11,
+                fontFamily: 'sans-serif',
               }}
             />
             <Tooltip
@@ -99,11 +99,11 @@ export const DynamometerCard: React.FC<DynamometerCardProps> = ({
                 if (active && payload && payload.length) {
                   const p = payload[0].payload as DynoPoint;
                   return (
-                    <div className="bg-industrial-900 border border-industrial-700 p-2 text-xs font-mono rounded shadow-lg text-industrial-200">
-                      <div className="text-industrial-400">Pos: {p.positionInches}"</div>
-                      <div className="text-sky-400">Surface Load: {p.surfaceLoadLbs} lbs</div>
-                      <div className="text-emerald-400">Downhole Load: {p.downholeLoadLbs} lbs</div>
-                      <div className="text-industrial-500">Normal Ref: {p.referenceNormalSurfaceLoadLbs} lbs</div>
+                    <div className="bg-white border border-app-border p-2.5 text-xs rounded-lg shadow-md text-app-text">
+                      <div className="text-app-muted mb-1">Position: {p.positionInches}"</div>
+                      <div className="text-app-blue font-medium">Surface Load: {p.surfaceLoadLbs} lbs</div>
+                      <div className="text-app-green font-medium">Downhole Load: {p.downholeLoadLbs} lbs</div>
+                      <div className="text-app-muted text-[11px]">Normal Ref: {p.referenceNormalSurfaceLoadLbs} lbs</div>
                     </div>
                   );
                 }
@@ -112,17 +112,16 @@ export const DynamometerCard: React.FC<DynamometerCardProps> = ({
             />
             <Legend
               verticalAlign="top"
-              wrapperStyle={{ fontSize: '11px', fontFamily: 'monospace', paddingBottom: '6px' }}
+              wrapperStyle={{ fontSize: '11px', fontFamily: 'sans-serif', paddingBottom: '8px' }}
             />
-            {/* Reference horizontal line for buoyant rod weight */}
             <ReferenceLine
               y={buoyantWeight}
-              stroke="#f59e0b"
+              stroke="#B7791F"
               strokeDasharray="4 4"
               label={{
                 value: `Buoyant Rod Weight (${buoyantWeight} lbs)`,
-                fill: '#f59e0b',
-                fontSize: 9,
+                fill: '#B7791F',
+                fontSize: 10,
                 position: 'top',
               }}
             />
@@ -130,7 +129,7 @@ export const DynamometerCard: React.FC<DynamometerCardProps> = ({
               type="monotone"
               dataKey="surfaceLoadLbs"
               name="Surface Polished Rod Load"
-              stroke="#38bdf8"
+              stroke="#3B82A0"
               strokeWidth={2}
               dot={false}
               isAnimationActive={false}
@@ -139,8 +138,8 @@ export const DynamometerCard: React.FC<DynamometerCardProps> = ({
               type="monotone"
               dataKey="downholeLoadLbs"
               name="Downhole Plunger Load"
-              stroke="#22c55e"
-              strokeWidth={1.5}
+              stroke="#3D8B68"
+              strokeWidth={1.8}
               dot={false}
               isAnimationActive={false}
             />
@@ -148,8 +147,8 @@ export const DynamometerCard: React.FC<DynamometerCardProps> = ({
               type="monotone"
               dataKey="referenceNormalSurfaceLoadLbs"
               name="Baseline Reference (Healthy)"
-              stroke="#64748b"
-              strokeWidth={1}
+              stroke="#CBD5E1"
+              strokeWidth={1.2}
               strokeDasharray="3 3"
               dot={false}
               isAnimationActive={false}
@@ -159,25 +158,25 @@ export const DynamometerCard: React.FC<DynamometerCardProps> = ({
       </div>
 
       {/* Dyno Engineering Diagnosis */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-2 text-xs font-mono">
-        <div className="bg-industrial-950 p-2 rounded border border-industrial-800">
-          <span className="text-[10px] text-industrial-400 uppercase">Upstroke Pickup</span>
-          <div className="text-industrial-200 mt-0.5">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-3 text-xs">
+        <div className="bg-app-bg p-3 rounded border border-app-border">
+          <span className="text-[11px] text-app-muted uppercase font-medium">Upstroke Pickup</span>
+          <div className="text-app-text font-medium mt-1">
             Normal fluid load transfer ({Math.round(buoyantWeight + 2650)} lbs peak)
           </div>
         </div>
 
-        <div className="bg-industrial-950 p-2 rounded border border-industrial-800">
-          <span className="text-[10px] text-industrial-400 uppercase">Downstroke Drag Envelope</span>
-          <div className={`mt-0.5 ${rodFloatRiskPct > 60 ? 'text-amber-300 font-semibold' : 'text-industrial-200'}`}>
-            {rodFloatRiskPct > 60 ? 'Severe viscous retardation at bottom stroke' : 'Stable downward momentum'}
+        <div className="bg-app-bg p-3 rounded border border-app-border">
+          <span className="text-[11px] text-app-muted uppercase font-medium">Downstroke Drag Envelope</span>
+          <div className={`mt-1 font-medium ${rodFloatRiskPct > 60 ? 'text-app-amber' : 'text-app-text'}`}>
+            {rodFloatRiskPct > 60 ? 'Viscous retardation approaching buoyant threshold' : 'Stable downward momentum'}
           </div>
         </div>
 
-        <div className="bg-industrial-950 p-2 rounded border border-industrial-800">
-          <span className="text-[10px] text-industrial-400 uppercase">Fillage / Fluid Pound</span>
-          <div className="text-industrial-200 mt-0.5">
-            {fillagePct < 70 ? 'Traveling valve delay: incomplete fillage' : 'Complete fluid chamber loading'}
+        <div className="bg-app-bg p-3 rounded border border-app-border">
+          <span className="text-[11px] text-app-muted uppercase font-medium">Fillage / Fluid Pound</span>
+          <div className="text-app-text font-medium mt-1">
+            {fillagePct < 70 ? 'Traveling valve delay: incomplete chamber fillage' : 'Complete fluid chamber loading'}
           </div>
         </div>
       </div>

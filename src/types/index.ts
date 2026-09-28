@@ -1,5 +1,21 @@
 export type WellId = 'BW-01' | 'BW-04' | 'BW-12' | 'BW-19';
 
+export type NavTab = 
+  | 'overview'
+  | 'monitoring'
+  | 'css_opt'
+  | 'reservoir_model'
+  | 'srp_opt'
+  | 'digital_twin'
+  | 'production_analytics'
+  | 'predictive_maintenance'
+  | 'energy_opt'
+  | 'what_if'
+  | 'alerts'
+  | 'historical'
+  | 'reports'
+  | 'settings';
+
 export type CSSStage = 'INJECTION' | 'SOAKING' | 'PRODUCTION' | 'SHUT_IN';
 
 export type AlertSeverity = 'CRITICAL' | 'WARNING' | 'WATCH' | 'NORMAL';

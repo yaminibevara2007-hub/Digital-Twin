@@ -28,49 +28,49 @@ export const MetricCard: React.FC<MetricCardProps> = ({
   onClick,
 }) => {
   const getTrendColor = () => {
-    if (trendDirection === 'up') return 'text-petro-green';
-    if (trendDirection === 'down') return 'text-petro-orange';
-    return 'text-industrial-400';
+    if (trendDirection === 'up') return 'text-app-green';
+    if (trendDirection === 'down') return 'text-app-steam';
+    return 'text-app-muted';
   };
 
   return (
     <div
       onClick={onClick}
-      className={`scada-panel p-3 flex flex-col justify-between transition-colors ${
-        onClick ? 'cursor-pointer hover:border-industrial-600' : ''
-      } ${highlight ? 'border-sky-700 bg-industrial-900/90' : ''}`}
+      className={`bg-white border rounded-lg p-4 flex flex-col justify-between transition-all ${
+        onClick ? 'cursor-pointer hover:border-app-secondaryNavy' : ''
+      } ${highlight ? 'border-app-blue bg-app-softBlue/30' : 'border-app-border'}`}
     >
-      <div className="flex items-start justify-between gap-1 mb-1">
-        <span className="text-[11px] font-medium uppercase tracking-wider text-industrial-400 truncate" title={label}>
+      <div className="flex items-center justify-between gap-1 mb-2">
+        <span className="text-xs font-medium text-app-muted tracking-wide" title={label}>
           {label}
         </span>
         <StatusBadge status={status} size="sm" />
       </div>
 
-      <div className="my-1 flex items-baseline gap-1.5">
-        <span className="scada-data-cell text-xl font-semibold tracking-tight text-industrial-100">
+      <div className="my-1.5 flex items-baseline gap-1.5">
+        <span className="eng-data-cell text-2xl font-semibold tracking-tight text-app-text">
           {value}
         </span>
-        <span className="text-xs font-mono text-industrial-400">
+        <span className="text-xs font-medium text-app-muted">
           {unit}
         </span>
       </div>
 
-      <div className="mt-1 flex items-center justify-between text-[11px] pt-1.5 border-t border-industrial-800">
-        <div className="flex items-center gap-1">
+      <div className="mt-2 pt-2 border-t border-app-borderLight flex items-center justify-between text-xs">
+        <div className="flex items-center gap-1.5">
           {trend && (
-            <span className={`font-mono font-medium ${getTrendColor()}`}>
+            <span className={`font-medium ${getTrendColor()}`}>
               {trend}
             </span>
           )}
           {subtext && (
-            <span className="text-industrial-400 truncate max-w-[120px]" title={subtext}>
+            <span className="text-app-muted truncate max-w-[130px]" title={subtext}>
               {subtext}
             </span>
           )}
         </div>
         {timestamp && (
-          <span className="font-mono text-[10px] text-industrial-500">
+          <span className="text-[11px] text-[#94A3B8] font-mono">
             {timestamp}
           </span>
         )}

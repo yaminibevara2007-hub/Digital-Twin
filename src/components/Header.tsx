@@ -1,165 +1,451 @@
-import React, { useState } from 'react';
-import { WellId } from '../types';
-import { BAGHEWALA_WELLS } from '../services/mockDataService';
+import React, { useState, useRef, useEffect } from 'react';
+import { WellId, NavTab } from '../types';
 import { 
-  Activity, 
-  Clock, 
-  User, 
-  HelpCircle, 
-  Server,
-  Layers
+  ChevronDown, 
+  Menu, 
+  X,
+  Activity,
+  Flame,
+  Wrench,
+  LineChart,
+  ShieldCheck,
+  FileText,
+  AlertTriangle,
+  History,
+  Settings,
+  Thermometer,
+  Zap
 } from 'lucide-react';
 
 interface HeaderProps {
   currentWellId: WellId;
   onSelectWell: (wellId: WellId) => void;
-  demoScenario: string;
-  onSelectDemoScenario: (scenario: string) => void;
-  backendOnline: boolean;
+  activeTab: NavTab;
+  onSelectTab: (tab: NavTab) => void;
+  activeAlertCount?: number;
+}
+
+interface DropdownItem {
+  id: NavTab;
+  label: string;
+  icon?: React.ComponentType<{ className?: string }>;
+  badge?: number;
 }
 
 export const Header: React.FC<HeaderProps> = ({
   currentWellId,
   onSelectWell,
-  demoScenario,
-  onSelectDemoScenario,
-  backendOnline,
+  activeTab,
+  onSelectTab,
+  activeAlertCount = 0,
 }) => {
-  const [showSyntheticInfo, setShowSyntheticInfo] = useState(false);
-  const well = BAGHEWALA_WELLS[currentWellId];
+  const [openDropdown, setOpenDropdown] = useState<string | null>(null);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const navRef = useRef<HTMLDivElement>(null);
+
+  // Close dropdown on click outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (navRef.current && !navRef.current.contains(event.target as Node)) {
+        setOpenDropdown(null);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
+  // Dropdown menus definition per specification
+  const monitoringItems: DropdownItem[] = [
+    { id: 'monitoring', label: 'Well Monitoring', icon: Activity },
+    { id: 'reservoir_model', label: 'Reservoir Thermal', icon: Thermometer },
+    { id: 'alerts', label: 'Alerts', icon: AlertTriangle, badge: activeAlertCount },
+  ];
+
+  const cssItems: DropdownItem[] = [
+    { id: 'css_opt', label: 'CSS Optimization', icon: Flame },
+    { id: 'historical', label: 'Historical CSS Cycles', icon: History },
+  ];
+
+  const srpItems: DropdownItem[] = [
+    { id: 'srp_opt', label: 'SRP Optimization', icon: Wrench },
+    { id: 'predictive_maintenance', label: 'Pump Health', icon: ShieldCheck },
+    { id: 'settings', label: 'Engineering Limits', icon: Settings },
+  ];
+
+  const analyticsItems: DropdownItem[] = [
+    { id: 'production_analytics', label: 'Production', icon: LineChart },
+    { id: 'energy_opt', label: 'Energy & Steam', icon: Zap },
+    { id: 'reports', label: 'Reports', icon: FileText },
+  ];
+
+  const toggleDropdown = (name: string) => {
+    setOpenDropdown(openDropdown === name ? null : name);
+  };
+
+  const handleSelectNav = (tab: NavTab) => {
+    onSelectTab(tab);
+    setOpenDropdown(null);
+    setMobileMenuOpen(false);
+  };
+
+  const isGroupActive = (tabs: NavTab[]) => tabs.includes(activeTab);
 
   return (
-    <header className="bg-industrial-900 border-b border-industrial-800 text-industrial-200 px-4 py-2.5 flex flex-wrap items-center justify-between gap-3 select-none">
-      {/* Field Identification & Well Selector */}
-      <div className="flex items-center gap-4">
-        <div className="flex items-center gap-2.5">
-          <div className="w-8 h-8 rounded bg-industrial-850 border border-industrial-700 flex items-center justify-center text-sky-400 font-mono font-bold text-sm">
-            BW
+    <header className="sticky top-0 z-40 bg-white border-b border-app-border select-none" ref={navRef}>
+      <div className="max-w-[1560px] mx-auto px-6 h-16 flex items-center justify-between gap-4">
+        {/* LEFT: BF Logo & Field Info */}
+        <div className="flex items-center gap-3 shrink-0">
+          <div className="w-8 h-8 rounded bg-app-softBlue border border-[#D4E8F3] flex items-center justify-center text-app-navy font-semibold text-xs tracking-wider">
+            BF
           </div>
           <div>
-            <div className="flex items-center gap-2">
-              <h1 className="text-sm font-semibold text-white tracking-wide uppercase">
-                Baghewala Field
-              </h1>
-              <span className="text-[11px] text-industrial-400 font-mono">
-                Bikaner-Nagaur Basin | Rajasthan
-              </span>
+            <div className="text-sm font-semibold text-app-text tracking-tight leading-tight">
+              Baghewala Field
             </div>
-            <div className="text-[11px] text-industrial-500 font-mono">
-              Jodhpur Sandstone (Heavy Oil EOR Operations)
+            <div className="text-[11px] text-app-muted leading-tight">
+              Rajasthan, India
             </div>
           </div>
         </div>
 
-        {/* Well Selector */}
-        <div className="flex items-center gap-2 pl-3 border-l border-industrial-800">
-          <label htmlFor="well-select" className="text-xs text-industrial-400 uppercase font-mono font-medium">
-            Well:
-          </label>
-          <select
-            id="well-select"
-            value={currentWellId}
-            onChange={(e) => onSelectWell(e.target.value as WellId)}
-            className="bg-industrial-950 border border-industrial-700 text-industrial-100 text-xs font-mono font-semibold rounded px-2.5 py-1.5 focus:outline-none focus:border-sky-500"
-          >
-            <option value="BW-01">BW-01 (Producer, Cycle 4)</option>
-            <option value="BW-04">BW-04 (Cooling / High Drag, Cycle 3)</option>
-            <option value="BW-12">BW-12 (Steam Injection, Cycle 5)</option>
-            <option value="BW-19">BW-19 (Soaking Phase, Cycle 2)</option>
-          </select>
-
-          {/* Operating Status Pill */}
-          <div className="flex items-center gap-1.5 px-2.5 py-1 rounded bg-industrial-850 border border-industrial-700 font-mono text-xs">
-            <span
-              className={`w-2 h-2 rounded-full ${
-                well.currentStage === 'PRODUCTION'
-                  ? 'bg-emerald-400 telemetry-live'
-                  : well.currentStage === 'INJECTION'
-                  ? 'bg-petro-orange telemetry-live'
-                  : 'bg-amber-400'
-              }`}
-            />
-            <span className="text-industrial-300 font-medium">{well.currentStage}</span>
-            <span className="text-industrial-500">|</span>
-            <span className="text-industrial-400">
-              Cycle {well.currentCycle} (Day {well.stageDay}/{well.stageTotalDays})
-            </span>
-          </div>
-        </div>
-      </div>
-
-      {/* Right Controls: Demo Mode, Synthetic Banner, SCADA Health, Operator */}
-      <div className="flex items-center gap-3">
-        {/* Preset Operational Scenarios for Demonstration */}
-        <div className="flex items-center gap-1.5 bg-industrial-950/80 px-2 py-1 rounded border border-industrial-800">
-          <Layers className="w-3.5 h-3.5 text-industrial-400" />
-          <span className="text-[11px] font-mono text-industrial-400">Condition:</span>
-          <select
-            value={demoScenario}
-            onChange={(e) => onSelectDemoScenario(e.target.value)}
-            className="bg-transparent text-xs font-mono text-industrial-200 border-none focus:outline-none cursor-pointer"
-          >
-            <option value="DEFAULT" className="bg-industrial-900">Standard Baseline</option>
-            <option value="RESERVOIR_COOLING" className="bg-industrial-900">Scenario: Reservoir Cooling Alert</option>
-            <option value="ROD_FLOATING_RISK" className="bg-industrial-900">Scenario: Rod-Floating Risk</option>
-            <option value="STEAM_CHANNELING" className="bg-industrial-900">Scenario: Steam Channeling Indication</option>
-            <option value="OPTIMIZED_OPERATING" className="bg-industrial-900">Scenario: Optimized Operating Point</option>
-          </select>
-        </div>
-
-        {/* Synthetic / Demo Data Watermark Badge */}
-        <div className="relative">
+        {/* CENTER: Horizontal Navigation Bar (Desktop & Tablet) */}
+        <nav className="hidden xl:flex items-center gap-1 text-[13px] font-medium text-app-muted">
+          {/* Overview */}
           <button
-            onClick={() => setShowSyntheticInfo(!showSyntheticInfo)}
-            className="flex items-center gap-1.5 px-2 py-1 rounded bg-amber-950/40 border border-amber-800/60 text-amber-300 text-[11px] font-mono hover:bg-amber-900/40 transition-colors"
-            title="Click for synthetic physics calibration details"
+            onClick={() => handleSelectNav('overview')}
+            className={`px-3 py-1.5 rounded-md transition-colors ${
+              activeTab === 'overview'
+                ? 'text-app-navy font-semibold bg-app-softBlue'
+                : 'hover:text-app-text hover:bg-app-bg'
+            }`}
           >
-            <span className="font-semibold">DEMO / SYNTHETIC DATA</span>
-            <HelpCircle className="w-3 h-3 text-amber-400" />
+            Overview
           </button>
 
-          {showSyntheticInfo && (
-            <div className="absolute right-0 top-9 w-80 bg-industrial-900 border border-industrial-700 shadow-2xl p-3 z-50 rounded text-xs text-industrial-300">
-              <div className="font-semibold text-industrial-100 mb-1 border-b border-industrial-800 pb-1 flex justify-between">
-                <span>Physics-Calibrated Synthetic Engine</span>
-                <span className="text-[10px] text-industrial-400">Baghewala Analogue</span>
+          {/* Digital Twin */}
+          <button
+            onClick={() => handleSelectNav('digital_twin')}
+            className={`px-3 py-1.5 rounded-md transition-colors ${
+              activeTab === 'digital_twin'
+                ? 'text-app-navy font-semibold bg-app-softBlue'
+                : 'hover:text-app-text hover:bg-app-bg'
+            }`}
+          >
+            Digital Twin
+          </button>
+
+          {/* Monitoring (Dropdown) */}
+          <div className="relative">
+            <button
+              onClick={() => toggleDropdown('monitoring')}
+              className={`flex items-center gap-1 px-3 py-1.5 rounded-md transition-colors ${
+                isGroupActive(['monitoring', 'reservoir_model', 'alerts'])
+                  ? 'text-app-navy font-semibold bg-app-softBlue'
+                  : 'hover:text-app-text hover:bg-app-bg'
+              }`}
+            >
+              <span>Monitoring</span>
+              <ChevronDown className="w-3.5 h-3.5 opacity-70" />
+            </button>
+
+            {openDropdown === 'monitoring' && (
+              <div className="absolute left-0 top-full mt-1.5 w-48 bg-white border border-app-border rounded-lg shadow-sm py-1 z-50 animate-in fade-in duration-100">
+                {monitoringItems.map((item) => (
+                  <button
+                    key={item.id}
+                    onClick={() => handleSelectNav(item.id)}
+                    className={`w-full flex items-center justify-between px-3.5 py-2 text-xs text-left transition-colors ${
+                      activeTab === item.id
+                        ? 'text-app-navy font-semibold bg-app-softBlue'
+                        : 'text-app-text hover:bg-app-bg hover:text-app-navy'
+                    }`}
+                  >
+                    <span>{item.label}</span>
+                    {item.badge !== undefined && item.badge > 0 && (
+                      <span className="px-1.5 py-0.5 text-[10px] rounded bg-app-softAmber text-app-amber font-mono font-medium">
+                        {item.badge}
+                      </span>
+                    )}
+                  </button>
+                ))}
               </div>
-              <p className="text-[11px] leading-relaxed mb-2 text-industrial-300">
-                To respect field operational confidentiality while demonstrating authentic petroleum engineering dynamics, telemetry is computed using experimental heavy-oil rheology (18.5° API, Walther viscosity model, Sucker Rod downstroke drag vs buoyant string weight, and CSS thermal diffusion).
-              </p>
-              <div className="text-[10px] font-mono text-industrial-400 bg-industrial-950 p-1.5 rounded">
-                Dead oil viscosity at 40°C: 22,000 cP | Jodhpur Sandstone
+            )}
+          </div>
+
+          {/* CSS (Dropdown) */}
+          <div className="relative">
+            <button
+              onClick={() => toggleDropdown('css')}
+              className={`flex items-center gap-1 px-3 py-1.5 rounded-md transition-colors ${
+                isGroupActive(['css_opt', 'historical'])
+                  ? 'text-app-navy font-semibold bg-app-softBlue'
+                  : 'hover:text-app-text hover:bg-app-bg'
+              }`}
+            >
+              <span>CSS</span>
+              <ChevronDown className="w-3.5 h-3.5 opacity-70" />
+            </button>
+
+            {openDropdown === 'css' && (
+              <div className="absolute left-0 top-full mt-1.5 w-52 bg-white border border-app-border rounded-lg shadow-sm py-1 z-50 animate-in fade-in duration-100">
+                {cssItems.map((item) => (
+                  <button
+                    key={item.id}
+                    onClick={() => handleSelectNav(item.id)}
+                    className={`w-full flex items-center justify-between px-3.5 py-2 text-xs text-left transition-colors ${
+                      activeTab === item.id
+                        ? 'text-app-navy font-semibold bg-app-softBlue'
+                        : 'text-app-text hover:bg-app-bg hover:text-app-navy'
+                    }`}
+                  >
+                    <span>{item.label}</span>
+                  </button>
+                ))}
               </div>
+            )}
+          </div>
+
+          {/* SRP (Dropdown) */}
+          <div className="relative">
+            <button
+              onClick={() => toggleDropdown('srp')}
+              className={`flex items-center gap-1 px-3 py-1.5 rounded-md transition-colors ${
+                isGroupActive(['srp_opt', 'predictive_maintenance', 'settings'])
+                  ? 'text-app-navy font-semibold bg-app-softBlue'
+                  : 'hover:text-app-text hover:bg-app-bg'
+              }`}
+            >
+              <span>SRP</span>
+              <ChevronDown className="w-3.5 h-3.5 opacity-70" />
+            </button>
+
+            {openDropdown === 'srp' && (
+              <div className="absolute left-0 top-full mt-1.5 w-52 bg-white border border-app-border rounded-lg shadow-sm py-1 z-50 animate-in fade-in duration-100">
+                {srpItems.map((item) => (
+                  <button
+                    key={item.id}
+                    onClick={() => handleSelectNav(item.id)}
+                    className={`w-full flex items-center justify-between px-3.5 py-2 text-xs text-left transition-colors ${
+                      activeTab === item.id
+                        ? 'text-app-navy font-semibold bg-app-softBlue'
+                        : 'text-app-text hover:bg-app-bg hover:text-app-navy'
+                    }`}
+                  >
+                    <span>{item.label}</span>
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
+
+          {/* Analytics (Dropdown) */}
+          <div className="relative">
+            <button
+              onClick={() => toggleDropdown('analytics')}
+              className={`flex items-center gap-1 px-3 py-1.5 rounded-md transition-colors ${
+                isGroupActive(['production_analytics', 'energy_opt', 'reports'])
+                  ? 'text-app-navy font-semibold bg-app-softBlue'
+                  : 'hover:text-app-text hover:bg-app-bg'
+              }`}
+            >
+              <span>Analytics</span>
+              <ChevronDown className="w-3.5 h-3.5 opacity-70" />
+            </button>
+
+            {openDropdown === 'analytics' && (
+              <div className="absolute left-0 top-full mt-1.5 w-48 bg-white border border-app-border rounded-lg shadow-sm py-1 z-50 animate-in fade-in duration-100">
+                {analyticsItems.map((item) => (
+                  <button
+                    key={item.id}
+                    onClick={() => handleSelectNav(item.id)}
+                    className={`w-full flex items-center justify-between px-3.5 py-2 text-xs text-left transition-colors ${
+                      activeTab === item.id
+                        ? 'text-app-navy font-semibold bg-app-softBlue'
+                        : 'text-app-text hover:bg-app-bg hover:text-app-navy'
+                    }`}
+                  >
+                    <span>{item.label}</span>
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
+
+          {/* Maintenance */}
+          <button
+            onClick={() => handleSelectNav('predictive_maintenance')}
+            className={`px-3 py-1.5 rounded-md transition-colors ${
+              activeTab === 'predictive_maintenance'
+                ? 'text-app-navy font-semibold bg-app-softBlue'
+                : 'hover:text-app-text hover:bg-app-bg'
+            }`}
+          >
+            Maintenance
+          </button>
+
+          {/* Simulation */}
+          <button
+            onClick={() => handleSelectNav('what_if')}
+            className={`px-3 py-1.5 rounded-md transition-colors ${
+              activeTab === 'what_if'
+                ? 'text-app-navy font-semibold bg-app-softBlue'
+                : 'hover:text-app-text hover:bg-app-bg'
+            }`}
+          >
+            Simulation
+          </button>
+
+          {/* Reports */}
+          <button
+            onClick={() => handleSelectNav('reports')}
+            className={`px-3 py-1.5 rounded-md transition-colors ${
+              activeTab === 'reports'
+                ? 'text-app-navy font-semibold bg-app-softBlue'
+                : 'hover:text-app-text hover:bg-app-bg'
+            }`}
+          >
+            Reports
+          </button>
+        </nav>
+
+        {/* RIGHT: Compact Well Selector, Status & Timestamp */}
+        <div className="flex items-center gap-4 text-xs shrink-0">
+          {/* Well Selector */}
+          <div className="flex items-center gap-1.5">
+            <span className="text-app-muted text-xs">Well:</span>
+            <div className="relative">
+              <select
+                id="header-well-select"
+                value={currentWellId}
+                onChange={(e) => onSelectWell(e.target.value as WellId)}
+                aria-label="Select Baghewala Field Well"
+                className="appearance-none bg-app-bg hover:bg-white border border-app-border text-app-text text-xs font-medium rounded-md pl-2.5 pr-7 py-1 focus:outline-none focus:border-app-navy cursor-pointer transition-colors"
+              >
+                <option value="BW-01">BGW-01</option>
+                <option value="BW-04">BGW-04</option>
+                <option value="BW-12">BGW-12</option>
+                <option value="BW-19">BGW-19</option>
+              </select>
+              <ChevronDown className="w-3.5 h-3.5 text-app-muted absolute right-2 top-1.5 pointer-events-none" />
             </div>
-          )}
-        </div>
+          </div>
 
-        {/* Backend Connectivity Status */}
-        <div className="flex items-center gap-1.5 px-2 py-1 rounded bg-industrial-950 border border-industrial-800 text-[11px] font-mono">
-          <Server className="w-3 h-3 text-industrial-400" />
-          <span
-            className={`w-1.5 h-1.5 rounded-full ${backendOnline ? 'bg-emerald-400' : 'bg-amber-400'}`}
-          />
-          <span className="text-industrial-300">
-            {backendOnline ? 'FASTAPI API' : 'ENGINE COUPLING'}
+          {/* Status Indicator */}
+          <div className="flex items-center gap-1.5 text-xs font-medium text-app-green">
+            <span className="w-2 h-2 rounded-full bg-app-green" />
+            <span>Normal</span>
+          </div>
+
+          {/* Last Updated Timestamp */}
+          <div className="text-xs text-app-muted font-normal pl-2 border-l border-app-border hidden sm:block">
+            10:32 AM
+          </div>
+
+          {/* Subtle Demo Data Badge */}
+          <span className="text-[10px] text-app-muted uppercase tracking-wider px-2 py-0.5 rounded bg-app-bg border border-app-border hidden md:inline-block">
+            Demo Data
           </span>
-        </div>
 
-        {/* Operator Profile & Timestamp */}
-        <div className="flex items-center gap-3 pl-3 border-l border-industrial-800 text-xs">
-          <div className="flex items-center gap-1.5 text-industrial-400">
-            <Clock className="w-3.5 h-3.5 text-industrial-500" />
-            <span className="font-mono text-industrial-300 text-[11px]">
-              2026-09-27 20:49 IST
-            </span>
-          </div>
-
-          <div className="flex items-center gap-1.5 text-industrial-300 bg-industrial-850 px-2 py-1 rounded border border-industrial-700">
-            <User className="w-3.5 h-3.5 text-industrial-400" />
-            <span className="font-medium text-[11px]">P. Sharma (Sr. Prod Eng)</span>
-          </div>
+          {/* Mobile / Tablet Menu Button */}
+          <button
+            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+            className="xl:hidden p-1.5 rounded-md text-app-muted hover:text-app-text hover:bg-app-bg transition-colors"
+            title="Toggle Menu"
+          >
+            {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+          </button>
         </div>
       </div>
+
+      {/* MOBILE / TABLET EXPANDED NAVIGATION DRAWER */}
+      {mobileMenuOpen && (
+        <div className="xl:hidden border-t border-app-border bg-white px-6 py-4 space-y-4 max-h-[calc(100vh-4rem)] overflow-y-auto animate-in slide-in-from-top-2 duration-150">
+          <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 text-xs font-medium">
+            <button
+              onClick={() => handleSelectNav('overview')}
+              className={`p-2.5 text-left rounded-md ${activeTab === 'overview' ? 'bg-app-softBlue text-app-navy font-semibold' : 'text-app-text hover:bg-app-bg'}`}
+            >
+              Overview
+            </button>
+            <button
+              onClick={() => handleSelectNav('digital_twin')}
+              className={`p-2.5 text-left rounded-md ${activeTab === 'digital_twin' ? 'bg-app-softBlue text-app-navy font-semibold' : 'text-app-text hover:bg-app-bg'}`}
+            >
+              Digital Twin
+            </button>
+            <button
+              onClick={() => handleSelectNav('what_if')}
+              className={`p-2.5 text-left rounded-md ${activeTab === 'what_if' ? 'bg-app-softBlue text-app-navy font-semibold' : 'text-app-text hover:bg-app-bg'}`}
+            >
+              Simulation
+            </button>
+            <button
+              onClick={() => handleSelectNav('predictive_maintenance')}
+              className={`p-2.5 text-left rounded-md ${activeTab === 'predictive_maintenance' ? 'bg-app-softBlue text-app-navy font-semibold' : 'text-app-text hover:bg-app-bg'}`}
+            >
+              Maintenance
+            </button>
+            <button
+              onClick={() => handleSelectNav('reports')}
+              className={`p-2.5 text-left rounded-md ${activeTab === 'reports' ? 'bg-app-softBlue text-app-navy font-semibold' : 'text-app-text hover:bg-app-bg'}`}
+            >
+              Reports
+            </button>
+          </div>
+
+          <div className="border-t border-app-border pt-3">
+            <div className="text-[11px] font-semibold text-app-muted uppercase tracking-wider mb-2">
+              Monitoring & Surveillance
+            </div>
+            <div className="grid grid-cols-2 gap-2 text-xs">
+              {monitoringItems.map((item) => (
+                <button
+                  key={item.id}
+                  onClick={() => handleSelectNav(item.id)}
+                  className={`p-2 text-left rounded-md ${activeTab === item.id ? 'bg-app-softBlue text-app-navy font-semibold' : 'text-app-text hover:bg-app-bg'}`}
+                >
+                  {item.label}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <div className="border-t border-app-border pt-3">
+            <div className="text-[11px] font-semibold text-app-muted uppercase tracking-wider mb-2">
+              Optimization & Engineering
+            </div>
+            <div className="grid grid-cols-2 gap-2 text-xs">
+              {cssItems.map((item) => (
+                <button
+                  key={item.id}
+                  onClick={() => handleSelectNav(item.id)}
+                  className={`p-2 text-left rounded-md ${activeTab === item.id ? 'bg-app-softBlue text-app-navy font-semibold' : 'text-app-text hover:bg-app-bg'}`}
+                >
+                  {item.label}
+                </button>
+              ))}
+              {srpItems.map((item) => (
+                <button
+                  key={item.id}
+                  onClick={() => handleSelectNav(item.id)}
+                  className={`p-2 text-left rounded-md ${activeTab === item.id ? 'bg-app-softBlue text-app-navy font-semibold' : 'text-app-text hover:bg-app-bg'}`}
+                >
+                  {item.label}
+                </button>
+              ))}
+              {analyticsItems.map((item) => (
+                <button
+                  key={item.id}
+                  onClick={() => handleSelectNav(item.id)}
+                  className={`p-2 text-left rounded-md ${activeTab === item.id ? 'bg-app-softBlue text-app-navy font-semibold' : 'text-app-text hover:bg-app-bg'}`}
+                >
+                  {item.label}
+                </button>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
     </header>
   );
 };
