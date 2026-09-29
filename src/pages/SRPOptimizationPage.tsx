@@ -17,7 +17,7 @@ interface SRPOptimizationPageProps {
 }
 
 export const SRPOptimizationPage: React.FC<SRPOptimizationPageProps> = ({ well, telemetry }) => {
-  const [targetSPM, setTargetSPM] = useState<number>(telemetry.srpSPM);
+  const [targetSPM, setTargetSPM] = useState<number>(4.0);
   const [strokeInches, setStrokeInches] = useState<number>(telemetry.srpStrokeLengthInches);
   const [applied, setApplied] = useState(false);
   const [evaluating, setEvaluating] = useState(false);
@@ -121,6 +121,52 @@ export const SRPOptimizationPage: React.FC<SRPOptimizationPageProps> = ({ well, 
               A lower operating speed of <strong className="text-app-text">{recommendedSPM} SPM</strong> restores the buoyant downward margin to <strong className="text-app-text">1,240 lbs</strong>, improves standing-valve chamber fillage to <strong className="text-app-green">86%</strong>, and reduces unnecessary mechanical loading.
             </p>
           </div>
+        </div>
+      </div>
+
+      {/* SPM Scenario Testing: Interactive SPM Selector & Evaluate Button */}
+      <div className="bg-white border border-app-border rounded-lg p-5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+        <div>
+          <span className="text-xs font-semibold text-app-text uppercase tracking-wider">
+            SPM Scenario Testing
+          </span>
+          <div className="text-xs text-app-muted mt-0.5">
+            Select candidate pumping speed (3.5, 4.0, 4.5, 5.0 SPM) and evaluate dynamic pump performance.
+          </div>
+        </div>
+
+        <div className="flex items-center flex-wrap gap-3">
+          <div className="inline-flex rounded-md border border-app-border bg-app-bg p-1 gap-1" id="spm-selector">
+            {[3.5, 4.0, 4.5, 5.0].map((spm) => (
+              <button
+                key={spm}
+                id={`spm-option-${spm}`}
+                type="button"
+                onClick={() => {
+                  setTargetSPM(spm);
+                  setApplied(false);
+                }}
+                className={`px-3 py-1.5 rounded text-xs font-medium transition-colors ${
+                  targetSPM === spm
+                    ? 'bg-app-navy text-white shadow-sm'
+                    : 'text-app-text hover:bg-white'
+                }`}
+              >
+                {spm.toFixed(1)} SPM
+              </button>
+            ))}
+          </div>
+
+          <button
+            id="evaluate-spm-btn"
+            type="button"
+            onClick={handleRunEvaluation}
+            disabled={evaluating}
+            className="flex items-center gap-1.5 px-4 py-2 rounded-md bg-app-navy text-white hover:bg-app-navyDark text-xs font-medium transition-colors shadow-sm disabled:opacity-60"
+          >
+            <RefreshCw className={`w-3.5 h-3.5 ${evaluating ? 'animate-spin' : ''}`} />
+            <span>{evaluating ? 'Evaluating...' : 'Evaluate'}</span>
+          </button>
         </div>
       </div>
 
