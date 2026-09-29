@@ -234,11 +234,15 @@ Protects the downhole rod string from compressive buckling failures (rod floatin
    - Compares **Surface Polished Rod Load** (blue curve) against **Downhole Plunger Load** (green curve).
    - Features the **Buoyant Rod Weight reference line** at `3,340 lbs`.
    - Real-time **Volumetric Pump Fillage** (29%) and **Rod Float Risk Index** (8%).
-2. **Operational Sliders & Variable Frequency Drive (VFD) Controls**:
-   - **Pumping Speed (SPM) Slider**: Interactive range from 2.0 to 6.5 SPM.
+2. **SPM Scenario Testing & Dynamic Evaluation**:
+   - **Candidate SPM Selector**: Interactive segmented selector with candidate speeds: **3.5 SPM**, **4.0 SPM**, **4.5 SPM**, and **5.0 SPM**.
+   - **4.0 SPM Default**: Preserves the 4.0 SPM engineering recommendation as the default active state.
+   - **Evaluate Button**: Triggers evaluation of candidate envelopes and dynamically refreshes pump fillage, rod float margin, surface oil rate, and dynamometer curves.
+3. **Operational Sliders & Variable Frequency Drive (VFD) Controls**:
+   - **Pumping Speed (SPM) Slider**: Interactive range from 2.0 to 6.5 SPM (synchronized with candidate selector).
    - **Stroke Length Slider**: Range from 74" to 144".
-   - **Instantaneous VFD Frequency Calculation**: Translates SPM into inverter Hz (e.g., 4.6 SPM $\to$ 38.3 Hz).
-   - **Simulated Production & Rod Margin Readouts**: Recalculates simulated BOPD and downward buoyant margin in real-time as sliders are moved.
+   - **Instantaneous VFD Frequency Calculation**: Translates SPM into inverter Hz (e.g., 4.0 SPM $\to$ 33.3 Hz, 4.6 SPM $\to$ 38.3 Hz).
+   - **Simulated Production & Rod Margin Readouts**: Recalculates simulated BOPD and downward buoyant margin in real-time as sliders or candidate buttons are adjusted.
    - **1-Click Optimal Apply**: Button to automatically apply harmonized speed (e.g., `Set to 4.0 SPM`).
 
 ---
